@@ -3,1019 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Data Independence in University Database Systems</title>
-<style>
-  :root{
-    --paper:#f8f7f3;
-    --grid-line:rgba(46,76,138,0.045);
-    --ink:#1b2030;
-    --ink-muted:#5a6070;
-    --internal:#5c6570;
-    --internal-tint:#edeeec;
-    --conceptual:#2e4c8a;
-    --conceptual-tint:#e8ecf6;
-    --external:#147d74;
-    --external-tint:#e3f2f0;
-    --hairline:#dcd7ca;
-    --code-bg:#eeece5;
-    --code-ink:#33424e;
-  }
-
-  *{box-sizing:border-box;}
-
-  body{
-    margin:0;
-    background-color:var(--paper);
-    background-image:
-      linear-gradient(var(--grid-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-    background-size:34px 34px;
-    color:var(--ink);
-  }
-
-  .db-article{
-    max-width:720px;
-    margin:0 auto;
-    padding:56px 24px 100px;
-  }
-
-  p{
-    font-family:'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
-    font-size:18px;
-    line-height:1.75;
-    color:var(--ink);
-    margin:0 0 22px;
-  }
-
-  h2{
-    font-family:Georgia, 'Times New Roman', serif;
-    font-size:30px;
-    line-height:1.25;
-    font-weight:700;
-    letter-spacing:-0.01em;
-    color:var(--ink);
-    margin:64px 0 20px;
-    scroll-margin-top:24px;
-  }
-  .db-article > h2:first-of-type{margin-top:0;}
-
-  h3{
-    font-family:Georgia, 'Times New Roman', serif;
-    font-size:22px;
-    font-weight:700;
-    margin:40px 0 16px;
-    scroll-margin-top:24px;
-  }
-
-  h4{
-    font-family:Georgia, 'Times New Roman', serif;
-    font-size:16.5px;
-    font-weight:700;
-    margin:0 0 10px;
-  }
-
-  ul{ padding-left:0; margin:0 0 22px; list-style:none; }
-  li{
-    font-family:'Palatino Linotype', Palatino, Georgia, serif;
-    font-size:17px;
-    line-height:1.7;
-    color:var(--ink);
-    margin:0 0 12px;
-    padding-left:20px;
-    position:relative;
-  }
-  li::before{
-    content:"";
-    position:absolute; left:0; top:10px;
-    width:6px; height:6px;
-    background:var(--ink-muted);
-    border-radius:1px;
-  }
-
-  code{
-    font-family:'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-    font-size:0.87em;
-    background:var(--code-bg);
-    color:var(--code-ink);
-    padding:2px 7px;
-    border-radius:4px;
-  }
-
-  b{font-weight:700;}
-
-  /* Hero: layer stack */
-  .layer-hero{
-    border:1px solid var(--hairline);
-    background:#fff;
-    border-radius:10px;
-    padding:28px 28px 24px;
-    margin-bottom:12px;
-  }
-  .layer-hero-title{
-    font-family:'SFMono-Regular', Consolas, monospace;
-    font-size:12px;
-    letter-spacing:0.04em;
-    color:var(--ink-muted);
-    margin:0 0 18px;
-  }
-  .layer{
-    display:flex; align-items:center; gap:14px;
-    padding:13px 16px; border-radius:6px; margin-bottom:8px;
-    font-family:Georgia, serif; font-size:15px; font-weight:700;
-  }
-  .layer:last-child{margin-bottom:0;}
-  .layer-dot{width:10px;height:10px;border-radius:50%;flex:none;}
-  .layer.external{background:var(--external-tint); color:var(--external); width:100%;}
-  .layer.conceptual{background:var(--conceptual-tint); color:var(--conceptual); width:88%; margin-left:6%;}
-  .layer.internal{background:var(--internal-tint); color:var(--internal); width:76%; margin-left:12%;}
-  .layer.external .layer-dot{background:var(--external);}
-  .layer.conceptual .layer-dot{background:var(--conceptual);}
-  .layer.internal .layer-dot{background:var(--internal);}
-
-  /* Contents */
-  .toc{
-    border:1px solid var(--hairline);
-    border-radius:10px;
-    padding:20px 26px;
-    margin:40px 0 8px;
-    background:rgba(255,255,255,0.55);
-  }
-  .toc-label{ font-family:Georgia, serif; font-weight:700; font-size:15px; margin:0 0 12px; }
-  .toc ol{ margin:0; padding-left:20px; columns:2; column-gap:28px; }
-  .toc li{ font-family:'Palatino Linotype', Palatino, Georgia, serif; font-size:14.5px; padding-left:0; margin-bottom:9px; break-inside:avoid; }
-  .toc li::before{display:none;}
-  .toc a{ color:var(--conceptual); text-decoration:none; border-bottom:1px solid transparent; }
-  .toc a:hover, .toc a:focus-visible{border-bottom-color:var(--conceptual);}
-
-  /* figures */
-  figure{margin:32px 0;}
-  figure img{ display:block; width:100%; height:auto; border-radius:10px; border:1px solid var(--hairline); }
-  figcaption{
-    font-family:'SFMono-Regular', Consolas, monospace;
-    font-size:12.5px; color:var(--ink-muted);
-    text-align:center; margin-top:10px; letter-spacing:0.01em;
-  }
-
-  /* dividers */
-  .divider{ display:flex; align-items:center; justify-content:center; margin:64px 0; }
-  .divider span{ width:5px;height:5px;border-radius:50%; background:var(--hairline); margin:0 6px; }
-  .divider::before, .divider::after{ content:""; flex:1; height:1px; background:var(--hairline); }
-
-  /* comparison / phase cards */
-  .level-grid{ display:flex; gap:16px; margin:0 0 22px; }
-  .level-card{ flex:1; border-left:3px solid var(--hairline); background:#fff; border-radius:0 8px 8px 0; padding:18px 20px; }
-  .level-card p, .level-card li{margin:0;}
-  .level-card.internal{border-left-color:var(--internal);}
-  .level-card.conceptual{border-left-color:var(--conceptual);}
-  .level-card b{ display:block; margin-bottom:6px; font-family:Georgia,serif; font-size:15.5px; }
-  .level-card.internal b{color:var(--internal);}
-  .level-card.conceptual b{color:var(--conceptual);}
-
-  /* three-level list */
-  .three-level li{padding-left:18px; border-left:3px solid var(--hairline); margin-bottom:14px;}
-  .three-level li::before{display:none;}
-  .three-level li.internal{border-left-color:var(--internal);}
-  .three-level li.conceptual{border-left-color:var(--conceptual);}
-  .three-level li.external{border-left-color:var(--external);}
-
-  /* analysis cards */
-  .analysis-card{
-    background:#fff; border:1px solid var(--hairline);
-    border-left:4px solid var(--internal);
-    border-radius:0 10px 10px 0;
-    padding:8px 28px 6px; margin:24px 0 44px;
-  }
-  .analysis-card.conceptual{border-left-color:var(--conceptual);}
-  .analysis-card h3{color:var(--internal); margin-top:26px;}
-  .analysis-card.conceptual h3{color:var(--conceptual);}
-
-  /* takeaways */
-  .takeaway{ border-left:3px solid var(--hairline); padding-left:18px; margin-bottom:16px; }
-  .takeaway::before{display:none;}
-  .takeaway.views{border-left-color:var(--external);}
-
-  /* conclusion outcome cards */
-  .outcome-grid{display:flex; gap:16px; margin:0 0 24px;}
-  .outcome-card{flex:1; background:#fff; border:1px solid var(--hairline); border-radius:8px; padding:18px 20px;}
-  .outcome-card::before{display:none;}
-  .outcome-card.internal{border-top:3px solid var(--internal);}
-  .outcome-card.conceptual{border-top:3px solid var(--conceptual);}
-
-  a{color:var(--conceptual);}
-  *:focus-visible{outline:2px solid var(--conceptual); outline-offset:2px;}
-
-  @media (max-width:680px){
-    .db-article{padding:40px 18px 72px;}
-    h2{font-size:25px; margin-top:48px;}
-    h3{font-size:19px;}
-    p, li{font-size:16px;}
-    .level-grid, .outcome-grid{flex-direction:column;}
-    .toc ol{columns:1;}
-    .layer.conceptual{width:92%; margin-left:4%;}
-    .layer.internal{width:84%; margin-left:8%;}
-  }
-</style>
-</head>
-<body>
-<article class="db-article">
-
-  <!-- Authors & Scenario Block Added Here -->
-  <div style="margin-bottom: 48px;">
-    <p style="font-family: Georgia, serif; font-size: 16px; color: var(--ink-muted); margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--hairline);">
-      <b>Authors:</b> Armaan Palan(Roll No. 52), Om Pandey(Roll No. 60), Dipanshu Pandey(Roll No. 58)
-    </p>
-    <div style="background: #fff; border: 1px solid var(--hairline); border-left: 4px solid var(--conceptual); padding: 24px; border-radius: 8px;">
-      <h4 style="margin-top: 0; color: var(--conceptual); font-size: 18px; margin-bottom: 16px;">Activity Scenario</h4>
-      <p style="font-size: 16px; margin-bottom: 16px; line-height: 1.6;"><b>Scenario:</b> A university plans to improve database performance by changing its physical storage structure and file organization. The university wants existing student applications to continue functioning without modification. Later, the university plans to reorganize the conceptual structure of the database to introduce additional academic information.</p>
-      <p style="font-size: 16px; margin-bottom: 0; line-height: 1.6;"><b>Question:</b> Analyze the two proposed changes and determine which level of the Three-Schema Architecture is affected in each case. Identify the type of data independence involved and justify whether application programs need modification.</p>
-    </div>
-  </div>
-
-  <div class="layer-hero">
-    <p class="layer-hero-title">three-schema architecture</p>
-    <div class="layer external"><span class="layer-dot"></span>External (View) Level</div>
-    <div class="layer conceptual"><span class="layer-dot"></span>Conceptual (Logical) Level</div>
-    <div class="layer internal"><span class="layer-dot"></span>Internal (Physical) Level</div>
-  </div>
-
-  <nav class="toc" aria-label="Contents">
-    <p class="toc-label">Contents</p>
-    <ol>
-      <li><a href="#introduction">Introduction</a></li>
-      <li><a href="#what-is-data-independence">What is Data Independence?</a></li>
-      <li><a href="#problem-statement">Problem Statement &amp; Scenario Analysis</a></li>
-      <li><a href="#solution-analysis">Analyzing the Two Proposed Changes: The Solution</a></li>
-      <li><a href="#why-harder">Why is Logical Data Independence Harder to Achieve than Physical?</a></li>
-      <li><a href="#key-takeaways">Key Takeaways from the University Case</a></li>
-      <li><a href="#conclusion">Conclusion</a></li>
-      <li><a href="#future-scope">Future Scope</a></li>
-    </ol>
-  </nav>
-
-  <h2 id="introduction">Introduction</h2>
-  <p>In modern university IT ecosystems, databases power mission-critical operations such as student enrollment, grading systems, course scheduling, and alumni tracking. As data volume grows and institutional requirements change, the underlying database must evolve.</p>
-  <p>However, modifying a database system introduces a recurring engineering bottleneck: how can database administrators optimize storage or extend business models without breaking client-side enterprise applications?</p>
-  <p>The <b>ANSI-SPARC Three-Schema Architecture</b> solves this problem by enforcing <b>Data Independence</b>. This technical blog analyzes a real-world university database scenario, evaluating how physical and logical changes propagate through the database layers and determine application stability.</p>
-
-  <figure>
-    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEgdrwcPc9uOKCgBO6AreAS_BfD5p74Beny15Q1sh85YS1AW8sXn8kG1ivM-jYOMEvzvhrMHm73e7rw1fJAhbumD415sfdtY956mRbkXyxp9dkwaiooGfDQSxG7K2-CPfEKld1YgQW3hQiIx5xQjpWVuMF1qXQyYZlg3AAMNnNF5rvuQSXfaTYFUinxaRkQ=w723-h399" alt="Three Schema Architecture">
-    <figcaption>Three Schema Architecture</figcaption>
-  </figure>
-
-  <h2 id="what-is-data-independence">What is Data Independence?</h2>
-  <p>In database management systems, <b>Data Independence</b> is the ability to modify the schema at one level of the database architecture without altering the schema at the next higher level. Traditionally, before the ANSI-SPARC model, application code was tightly bound to the exact physical layout of files on disk. If a disk format changed, developers had to rewrite parts of the application.</p>
-  <p>Data independence decouples these systems into three distinct layers:</p>
-
-  <ul class="three-level">
-    <li class="internal"><b>Internal (Physical) Level:</b> Deals with how data is stored, indexed, and compressed on hardware blocks.</li>
-    <li class="conceptual"><b>Conceptual (Logical) Level:</b> Represents the global blueprint—entities, attributes, relationships, and constraints.</li>
-    <li class="external"><b>External (View) Level:</b> Represents customized perspectives of the data for specific user groups or applications.</li>
-  </ul>
-
-  <p>There are two forms of data independence:</p>
-
-  <div class="level-grid">
-    <div class="level-card internal"><b>Physical Data Independence</b>The capacity to change the internal schema (e.g., swapping storage media, rebuilding B-trees, or re-clustering files) without altering the conceptual schema.</div>
-    <div class="level-card conceptual"><b>Logical Data Independence</b>The capacity to change the conceptual schema (e.g., adding new entities or expanding attributes) without altering the external schemas or breaking existing application programs.</div>
-  </div>
-
-  <h3>Importance of Data Independence</h3>
-  <p>Enforcing data independence provides critical operational advantages in enterprise systems like university portals:</p>
-  <ul>
-    <li><b>Zero-Downtime Application Stability:</b> Developers can optimize database storage engines or introduce new database fields without rewriting, recompiling, or redeploying existing front-end software.</li>
-    <li><b>Performance Tuning Flexibility:</b> Database Administrators (DBAs) can add indexes, migrate to solid-state drives, or partition storage clusters purely to boost execution speeds without consulting application developers.</li>
-    <li><b>Simplified Schema Evolution:</b> As institutional needs expand (such as tracking thesis advisors or internship credits), the data model can grow organically without invalidating older client queries.</li>
-    <li><b>Reduced Maintenance Overhead &amp; Costs:</b> Eliminates the cycle where routine database upgrades force expensive regression tests across all external applications.</li>
-    <li><b>Granular Security and Access Control:</b> Different applications only see their authorized external views, keeping new, sensitive, or internal storage details hidden.</li>
-  </ul>
-
-  <div class="divider"><span></span></div>
-
-  <h2 id="problem-statement">Problem Statement &amp; Scenario Analysis</h2>
-  <p>Every college campus runs on databases—whether it is checking attendance, downloading hall tickets, or registering for semester courses. But as more students get admitted, the system starts lagging, and as the curriculum changes, the college needs to add new details to the records.</p>
-  <p><b>This brings up a common dilemma: how can our database team upgrade the backend or add new features without crashing the mobile app or student portal that everyone uses daily?</b></p>
-
-  <h3>The University Scenario</h3>
-  <p>Our college is planning two major database updates in phases:</p>
-
-  <div class="level-grid">
-    <div class="level-card internal"><b>Phase 1: Boosting Speed (Physical Level)</b>The university wants to speed up the database. They decide to change how files and records are physically stored on the hard drives (like adding indexes and reorganizing data files). However, there is a clear condition: existing student apps must continue working without any changes.</div>
-    <div class="level-card conceptual"><b>Phase 2: Adding New Academic Details (Conceptual Level)</b>Later on, the university decides to track extra academic details (like capstone projects, faculty guides, or research credits). This means changing the overall design and structure of the database tables.</div>
-  </div>
-
-  <h3>Objectives of This Study</h3>
-  <p>As computer engineering students studying DBMS, our task is to analyze these two changes using the Three-Schema Architecture:</p>
-  <ul>
-    <li>Identify which exact level of the database architecture is being touched in each phase.</li>
-    <li>Identify whether it represents Physical Data Independence or Logical Data Independence.</li>
-    <li>Check whether developers need to edit the frontend application code, or if the database handles it automatically.</li>
-  </ul>
-
-  <div class="divider"><span></span></div>
-
-  <h2 id="solution-analysis">Analyzing the Two Proposed Changes: The Solution</h2>
-  <p>To solve our university activity completely, we break down each proposed change step-by-step using the Three-Schema Architecture framework.</p>
-
-  <div class="analysis-card internal">
-    <h3>Detailed Analysis of Change 1: Modifying Physical Storage Structure</h3>
-
-    <h4>1. Level Affected: Internal Level (Physical Schema)</h4>
-    <ul>
-      <li>The internal level controls how the database actually interacts with hardware—how records are packed into disk blocks, how files are structured, and what access paths (like B+ Tree indexes or hashing) exist.</li>
-      <li>When the university alters file layouts to speed up queries, they are solely tweaking this lowest tier.</li>
-    </ul>
-
-    <h4>2. Data Independence: Physical Data Independence</h4>
-    <ul>
-      <li>Physical Data Independence is the capacity to change the internal schema without having to modify the conceptual schema.</li>
-      <li>Because the conceptual schema stays intact, the layer above it remains completely unaware of physical hardware reorganizations.</li>
-    </ul>
-
-    <h4>3. Justification on Application Modification: No Modification Required</h4>
-    <ul>
-      <li><b>Why apps don't break:</b> Student portals interact with tables and attributes defined at the conceptual and external levels, not disk sectors.</li>
-      <li>The internal-to-conceptual mapping maintained by the DBMS absorbs these physical changes. A query like <code>SELECT * FROM Students WHERE department = 'IT'</code> returns the exact same result—just faster.</li>
-    </ul>
-  </div>
-
-  <div class="analysis-card conceptual">
-    <h3>Detailed Analysis of Change 2: Reorganizing Conceptual Structure</h3>
-
-    <h4>1. Level Affected: Conceptual Level (Logical Schema)</h4>
-    <ul>
-      <li>The conceptual schema defines the global community view of the entire database—its entities (e.g., <code>Students</code>, <code>Courses</code>), their attributes, data types, and primary/foreign key relationships.</li>
-      <li>Adding new academic data (such as capstone research milestones, advisor links, or credit categories) expands this logical blueprint.</li>
-    </ul>
-
-    <h4>2. Data Independence: Logical Data Independence</h4>
-    <ul>
-      <li>Logical Data Independence is the capacity to modify the conceptual schema without needing to rewrite external schemas (views) or existing application programs.</li>
-      <li>It protects legacy applications when tables are expanded or split into normalized forms.</li>
-    </ul>
-
-    <h4>3. Justification on Application Modification: Existing Apps Do Not Need Changes</h4>
-    <ul>
-      <li><b>Existing Apps (Unchanged):</b> The university uses the conceptual-to-external mapping (Database Views). Existing applications that only display attendance or marks continue reading from their defined view of the student table. Because new academic columns do not alter or delete existing columns, legacy applications continue functioning as normal.</li>
-      <li><b>New Apps (Require Updates):</b> Only newly created features that explicitly want to display or edit the newly added academic details will need updated queries and user interfaces.</li>
-    </ul>
-  </div>
-
-  <h2 id="why-harder">Why is Logical Data Independence Harder to Achieve than Physical?</h2>
-  <p>A common question in DBMS is why one is harder than the other:</p>
-  <ul>
-    <li><b>Physical changes are invisible to users:</b> When a database administrator adds an index or switches storage to faster drives, the logical names of tables and columns remain untouched. The conceptual schema doesn't change, so nothing above it notices.</li>
-    <li><b>Logical changes alter business definitions:</b> When tables are added, split, or modified, they directly impact how data is structured. If an application relies on a table that gets broken up during normalization, the database must rely on carefully written views to keep that application from failing. Because real-world applications read and write data based on this layer, maintaining complete independence at the logical level is far more challenging.</li>
-  </ul>
-
-  <figure>
-    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEh7KUdscF8C1m045QgRwSTfXW8Zpn142AExIM5WxfqGNmfZhAOKk-GQEWgbCf8hLszONUo_Es0JUTcQxsXmeTcE-juHTA62g4_mCsyMfEmwUQwLZDuPaJXoQ-Uli2b0cOtVEGiUIXJ4ra_uupbI6czLOLakahyfA-5NDgZniUnrA2K0A7mm-737RI3-pA0=w745-h517" alt="Physical vs Logical Data Independence Comparison">
-    <figcaption>Physical vs Logical Data Independence Comparison</figcaption>
-  </figure>
-
-  <h2 id="key-takeaways">Key Takeaways from the University Case</h2>
-  <p>From this case study, we can take away three key insights:</p>
-  <ul>
-    <li class="takeaway"><b>Separation of Concerns:</b> By dividing the database into three separate layers, database administrators can tune speed and storage without troubling frontend software engineers.</li>
-    <li class="takeaway views"><b>The Role of Database Views:</b> Logical data independence works in practice because external views act as a protective barrier. Legacy applications query these views, leaving them safe even when base tables expand with new academic records.</li>
-    <li class="takeaway"><b>Cost and Effort Savings:</b> Without data independence, even minor database updates would require testing, rewriting, and redeploying every connected student portal and mobile app.</li>
-  </ul>
-
-  <div class="divider"><span></span></div>
-
-  <h2 id="conclusion">Conclusion</h2>
-  <p>Understanding data independence is essential for designing resilient database systems. In our university scenario:</p>
-
-  <div class="outcome-grid">
-    <div class="outcome-card internal"><b>Modifying physical storage</b> demonstrated <b>Physical Data Independence</b> at the <b>Internal Level</b>, optimizing performance with zero impact on student applications.</div>
-    <div class="outcome-card conceptual"><b>Adding new academic information</b> demonstrated <b>Logical Data Independence</b> at the <b>Conceptual Level</b>, allowing the university's academic model to expand while keeping existing student tools functional through views.</div>
-  </div>
-
-  <p>The ANSI-SPARC Three-Schema Architecture ensures that databases can adapt to performance demands and evolving institutional requirements without constant downtime or software redesigns.</p>
-
-  <h2 id="future-scope">Future Scope</h2>
-  <p>In modern enterprise and campus environments, data independence can be expanded further through:</p>
-  <ul>
-    <li><b>Cloud &amp; Distributed Storage Migration:</b> Moving physical storage from local university servers to cloud platforms (like AWS or Azure) without changing any student queries.</li>
-    <li><b>Automated Migration Tools:</b> Using tools like Liquibase or Flyway to track and apply conceptual schema updates automatically during semester breaks.</li>
-    <li><b>Microservices &amp; API Gateways:</b> Adding API abstraction layers on top of external views so that web, iOS, and Android applications communicate seamlessly, regardless of underlying database upgrades.</li>
-  </ul>
-
-</article>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Choosing the Right Data Model for Complex Systems</title>
-<style>
-  :root{
-    --paper:#f8f7f3;
-    --grid-line:rgba(46,76,138,0.045);
-    --ink:#1b2030;
-    --ink-muted:#5a6070;
-    --internal:#5c6570;
-    --internal-tint:#edeeec;
-    --conceptual:#2e4c8a;
-    --conceptual-tint:#e8ecf6;
-    --external:#147d74;
-    --external-tint:#e3f2f0;
-    --hairline:#dcd7ca;
-    --code-bg:#eeece5;
-    --code-ink:#33424e;
-  }
-
-  *{box-sizing:border-box;}
-
-  body{
-    margin:0;
-    background-color:var(--paper);
-    background-image:
-      linear-gradient(var(--grid-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-    background-size:34px 34px;
-    color:var(--ink);
-  }
-
-  .db-article{
-    max-width:720px;
-    margin:0 auto;
-    padding:56px 24px 100px;
-  }
-
-  p{
-    font-family:'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
-    font-size:18px;
-    line-height:1.75;
-    color:var(--ink);
-    margin:0 0 22px;
-  }
-
-  h2{
-    font-family:Georgia, 'Times New Roman', serif;
-    font-size:30px;
-    line-height:1.25;
-    font-weight:700;
-    letter-spacing:-0.01em;
-    color:var(--ink);
-    margin:64px 0 20px;
-    scroll-margin-top:24px;
-  }
-  .db-article > h2:first-of-type{margin-top:0;}
-
-  h3{
-    font-family:Georgia, 'Times New Roman', serif;
-    font-size:22px;
-    font-weight:700;
-    margin:40px 0 16px;
-    scroll-margin-top:24px;
-  }
-
-  h4{
-    font-family:Georgia, 'Times New Roman', serif;
-    font-size:16.5px;
-    font-weight:700;
-    margin:0 0 10px;
-  }
-
-  ul{ padding-left:0; margin:0 0 22px; list-style:none; }
-  li{
-    font-family:'Palatino Linotype', Palatino, Georgia, serif;
-    font-size:17px;
-    line-height:1.7;
-    color:var(--ink);
-    margin:0 0 12px;
-    padding-left:20px;
-    position:relative;
-  }
-  li::before{
-    content:"";
-    position:absolute; left:0; top:10px;
-    width:6px; height:6px;
-    background:var(--ink-muted);
-    border-radius:1px;
-  }
-
-  code{
-    font-family:'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-    font-size:0.87em;
-    background:var(--code-bg);
-    color:var(--code-ink);
-    padding:2px 7px;
-    border-radius:4px;
-  }
-
-  b{font-weight:700;}
-
-  /* Hero: Layer Stack */
-  .layer-hero{
-    border:1px solid var(--hairline);
-    background:#fff;
-    border-radius:10px;
-    padding:28px 28px 24px;
-    margin-bottom:12px;
-  }
-  .layer-hero-title{
-    font-family:'SFMono-Regular', Consolas, monospace;
-    font-size:12px;
-    letter-spacing:0.04em;
-    color:var(--ink-muted);
-    margin:0 0 18px;
-    text-transform:uppercase;
-  }
-  .layer{
-    display:flex; align-items:center; gap:14px;
-    padding:13px 16px; border-radius:6px; margin-bottom:8px;
-    font-family:Georgia, serif; font-size:15px; font-weight:700;
-  }
-  .layer:last-child{margin-bottom:0;}
-  .layer-dot{width:10px;height:10px;border-radius:50%;flex:none;}
-  .layer.relational{background:var(--conceptual-tint); color:var(--conceptual); width:100%;}
-  .layer.graph{background:var(--external-tint); color:var(--external); width:92%; margin-left:4%;}
-  .layer.hierarchical{background:var(--internal-tint); color:var(--internal); width:84%; margin-left:8%;}
-  .layer.document{background:rgba(46,76,138,0.08); color:var(--ink); width:76%; margin-left:12%;}
-  .layer.relational .layer-dot{background:var(--conceptual);}
-  .layer.graph .layer-dot{background:var(--external);}
-  .layer.hierarchical .layer-dot{background:var(--internal);}
-  .layer.document .layer-dot{background:var(--ink);}
-
-  /* Contents */
-  .toc{
-    border:1px solid var(--hairline);
-    border-radius:10px;
-    padding:20px 26px;
-    margin:40px 0 8px;
-    background:rgba(255,255,255,0.55);
-  }
-  .toc-label{ font-family:Georgia, serif; font-weight:700; font-size:15px; margin:0 0 12px; }
-  .toc ol{ margin:0; padding-left:20px; columns:2; column-gap:28px; }
-  .toc li{ font-family:'Palatino Linotype', Palatino, Georgia, serif; font-size:14.5px; padding-left:0; margin-bottom:9px; break-inside:avoid; }
-  .toc li::before{display:none;}
-  .toc a{ color:var(--conceptual); text-decoration:none; border-bottom:1px solid transparent; }
-  .toc a:hover, .toc a:focus-visible{border-bottom-color:var(--conceptual);}
-
-  /* Figures */
-  figure{margin:32px 0;}
-  figure img{ display:block; width:100%; height:auto; border-radius:10px; border:1px solid var(--hairline); }
-  figcaption{
-    font-family:'SFMono-Regular', Consolas, monospace;
-    font-size:12.5px; color:var(--ink-muted);
-    text-align:center; margin-top:10px; letter-spacing:0.01em;
-  }
-
-  /* Dividers */
-  .divider{ display:flex; align-items:center; justify-content:center; margin:64px 0; }
-  .divider span{ width:5px;height:5px;border-radius:50%; background:var(--hairline); margin:0 6px; }
-  .divider::before, .divider::after{ content:""; flex:1; height:1px; background:var(--hairline); }
-
-  /* Comparison / Level Cards */
-  .level-grid{ display:flex; gap:16px; margin:0 0 22px; }
-  .level-card{ flex:1; border-left:3px solid var(--hairline); background:#fff; border-radius:0 8px 8px 0; padding:18px 20px; }
-  .level-card p, .level-card li{margin:0;}
-  .level-card.relational{border-left-color:var(--conceptual);}
-  .level-card.graph{border-left-color:var(--external);}
-  .level-card.hierarchical{border-left-color:var(--internal);}
-  .level-card.document{border-left-color:var(--ink-muted);}
-  .level-card b{ display:block; margin-bottom:6px; font-family:Georgia,serif; font-size:15.5px; }
-  .level-card.relational b{color:var(--conceptual);}
-  .level-card.graph b{color:var(--external);}
-  .level-card.hierarchical b{color:var(--internal);}
-  .level-card.document b{color:var(--ink);}
-
-  /* Analysis Cards */
-  .analysis-card{
-    background:#fff; border:1px solid var(--hairline);
-    border-left:4px solid var(--conceptual);
-    border-radius:0 10px 10px 0;
-    padding:14px 28px 12px; margin:24px 0 44px;
-  }
-  .analysis-card.graph{border-left-color:var(--external);}
-  .analysis-card.hierarchical{border-left-color:var(--internal);}
-  .analysis-card.document{border-left-color:var(--ink-muted);}
-  .analysis-card h3{margin-top:16px; color:var(--conceptual);}
-  .analysis-card.graph h3{color:var(--external);}
-  .analysis-card.hierarchical h3{color:var(--internal);}
-  .analysis-card.document h3{color:var(--ink);}
-
-  /* Clean Tables */
-  .comparison-table-wrapper{
-    overflow-x:auto;
-    margin:20px 0 28px;
-    border:1px solid var(--hairline);
-    border-radius:8px;
-    background:#fff;
-  }
-  table{
-    width:100%;
-    border-collapse:collapse;
-    text-align:left;
-    font-family:'Palatino Linotype', Palatino, Georgia, serif;
-    font-size:15px;
-  }
-  th{
-    background:var(--code-bg);
-    color:var(--ink);
-    padding:12px 16px;
-    font-family:Georgia, serif;
-    font-weight:700;
-    border-bottom:1px solid var(--hairline);
-  }
-  td{
-    padding:12px 16px;
-    border-bottom:1px solid var(--hairline);
-    vertical-align:top;
-    line-height:1.6;
-  }
-  tr:last-child td{border-bottom:none;}
-  td b{color:var(--ink);}
-
-  /* Conclusion Outcome Cards */
-  .outcome-grid{display:flex; gap:16px; margin:0 0 24px; flex-wrap:wrap;}
-  .outcome-card{flex:1 1 calc(50% - 16px); background:#fff; border:1px solid var(--hairline); border-radius:8px; padding:18px 20px;}
-  .outcome-card::before{display:none;}
-  .outcome-card.banking{border-top:3px solid var(--conceptual);}
-  .outcome-card.social{border-top:3px solid var(--external);}
-  .outcome-card.university{border-top:3px solid var(--conceptual);}
-  .outcome-card.org{border-top:3px solid var(--internal);}
-
-  a{color:var(--conceptual);}
-  *:focus-visible{outline:2px solid var(--conceptual); outline-offset:2px;}
-
-  @media (max-width:680px){
-    .db-article{padding:40px 18px 72px;}
-    h2{font-size:25px; margin-top:48px;}
-    h3{font-size:19px;}
-    p, li{font-size:16px;}
-    .level-grid{flex-direction:column;}
-    .outcome-grid{flex-direction:column;}
-    .outcome-card{flex:1 1 100%;}
-    .toc ol{columns:1;}
-    .layer.graph{width:96%; margin-left:2%;}
-    .layer.hierarchical{width:92%; margin-left:4%;}
-    .layer.document{width:88%; margin-left:6%;}
-  }
-</style>
-</head>
-<body>
-<article class="db-article">
-
-  <!-- Authors & Activity Block -->
-  <div style="margin-bottom: 48px;">
-    <p style="font-family: Georgia, serif; font-size: 16px; color: var(--ink-muted); margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--hairline);">
-      <b>Authors:</b> Manav Pal (Roll No. 51), Kavit Pallicha (Roll No. 53), Viraj Pamale (Roll No. 54)
-    </p>
-    <div style="background: #fff; border: 1px solid var(--hairline); border-left: 4px solid var(--conceptual); padding: 24px; border-radius: 8px;">
-      <h4 style="margin-top: 0; color: var(--conceptual); font-size: 18px; margin-bottom: 16px;">Objective &amp; Scope</h4>
-      <p style="font-size: 16px; margin-bottom: 0; line-height: 1.6;">Analyze the data requirements and structural characteristics of four representative application domains—<b>a banking system</b>, <b>a university management system</b>, <b>an organizational hierarchy</b>, and <b>a social networking system</b>—to determine the most appropriate data model for each. Justifications are evaluated based on entity stability, relationship cardinality, query traversal patterns, and transactional consistency.</p>
-    </div>
-  </div>
-
-  <!-- Hero: Data Models Overview -->
-  <div class="layer-hero">
-    <p class="layer-hero-title">Core Data Models Analyzed</p>
-    <div class="layer relational"><span class="layer-dot"></span>Relational Model (Tabular, Strict Schema &amp; ACID)</div>
-    <div class="layer graph"><span class="layer-dot"></span>Graph Model (Nodes, Edges &amp; Deep Traversal)</div>
-    <div class="layer hierarchical"><span class="layer-dot"></span>Hierarchical Model (Strict Single-Parent Tree)</div>
-    <div class="layer document"><span class="layer-dot"></span>Document Model (Flexible, Nested &amp; Schema-less NoSQL)</div>
-  </div>
-
-  <!-- Table of Contents -->
-  <nav class="toc" aria-label="Contents">
-    <p class="toc-label">Contents</p>
-    <ol>
-      <li><a href="#introduction">Introduction</a></li>
-      <li><a href="#banking-system">1. Banking System</a></li>
-      <li><a href="#university-system">2. University Management</a></li>
-      <li><a href="#organizational-hierarchy">3. Organizational Hierarchy</a></li>
-      <li><a href="#social-networking">4. Social Networking System</a></li>
-      <li><a href="#comparative-summary">Consolidated Comparison</a></li>
-      <li><a href="#conclusion">Conclusion &amp; Key Verdicts</a></li>
-      <li><a href="#future-scope">Future Scope &amp; Polyglot Systems</a></li>
-    </ol>
-  </nav>
-
-  <h2 id="introduction">Introduction</h2>
-  <p>A data model is not merely an implementation detail; it is a direct reflection of how entities in the real world interact and link to one another. Selecting the right data model governs query performance, transactional integrity, horizontal scalability, and software maintainability over time.</p>
-  <p>No single database architecture is a universal answer. While high-frequency financial ledgers require rigid tabular constraints and immediate serializability, graph networks demand rapid link traversal, and document stores prioritize evolving hierarchical payloads.</p>
-
-  <div class="level-grid">
-    <div class="level-card relational"><b>Relational Model</b>Organized into tables of rows and columns, mapped through foreign keys, and protected by strict multi-row ACID properties.</div>
-    <div class="level-card graph"><b>Graph Model</b>Organized as interconnected nodes and relationship edges, built specifically for arbitrary multi-hop traversals.</div>
-  </div>
-  <div class="level-grid">
-    <div class="level-card hierarchical"><b>Hierarchical Model</b>Organized as a strict single-parent tree structure where every child record has exactly one owner node.</div>
-    <div class="level-card document"><b>Document Model</b>Flexible, semi-structured JSON/BSON documents tailored for nested, variable-depth records.</div>
-  </div>
-
-  <div class="divider"><span></span></div>
-
-  <!-- Domain 1: Banking System -->
-  <h2 id="banking-system">1. Banking System</h2>
-  <p>Banking architectures handle mission-critical financial ledgers where data integrity and consistency supersede every other engineering metric.</p>
-
-  <figure>
-    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiqbVA-rUdLFEeGQKYsTD9tbzJUTdYe99HL6CMt4IRRUbWble1TU9fgglDnTCBBftOcPzkulZORhYj1lpPWC4Hap0EZFFgjZ1EGQufKhaiTM8lfXcWjvpQqjmEgveD7oKYBb_L2WVfffq5_4kZtYuRBvnle8dOav7a3JYOyHoKWxJU5qlholck5gRsYDS3D=w454-h334" alt="Structural view of the banking system">
-    <figcaption>Figure 1: Structural view of the banking system</figcaption>
-  </figure>
-
-  <div class="analysis-card">
-    <h3>Architectural Evaluation</h3>
-    <h4>Data Requirements &amp; Structural Characteristics</h4>
-    <ul>
-      <li><b>Well-defined entities:</b> Customers, accounts, transactions, loans, and branches each possess fixed, predictable attributes.</li>
-      <li><b>Stable relationships:</b> A customer owns accounts, an account belongs to a branch, and transactions balance debit/credit records across accounts.</li>
-      <li><b>Strict consistency need:</b> Balances must be deterministic at all times; zero tolerance exists for eventual consistency or lost updates.</li>
-    </ul>
-
-    <h4>Why the Relational Model Fits</h4>
-    <ul>
-      <li><b>Structured, predictable schema:</b> Numerical balances, timestamps, and account keys align naturally into tabular structures.</li>
-      <li><b>ACID compliance:</b> Moving money between accounts must commit simultaneously or roll back completely.</li>
-      <li><b>Referential integrity &amp; auditability:</b> Foreign keys enforce valid account references, and check constraints prevent invalid states.</li>
-    </ul>
-
-    <h4>Why Alternative Models Fall Short</h4>
-    <div class="comparison-table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Alternative Model</th>
-            <th>Why It Is a Poor Fit Here</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><b>Graph</b></td>
-            <td>Overkill for fixed, shallow relationships (customer → account → branch); lacks out-of-the-box transactional ACID safeguards needed for multi-record ledger balances.</td>
-          </tr>
-          <tr>
-            <td><b>Hierarchical</b></td>
-            <td>Cannot naturally capture transactions that reference two independent accounts (source and destination) without data duplication.</td>
-          </tr>
-          <tr>
-            <td><b>Document (NoSQL)</b></td>
-            <td>Loose schemas introduce integrity risks where currency and balance fields could vary across records without global constraints.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <p><b>Verdict:</b> The <b>Relational Model</b> is the industry standard for banking due to non-negotiable ACID guarantees and schema rigidity.</p>
-  </div>
-
-  <div class="divider"><span></span></div>
-
-  <!-- Domain 2: University Management System -->
-  <h2 id="university-system">2. University Management System</h2>
-  <p>University Information Systems (SIS) serve wide departmental workflows, including student admissions, semester course registrations, and grade audits.</p>
-
-  <figure>
-    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEi2WP-NJVfSENCX25dsOevxziwobiSQ97_0FmoRsTIo5-nHELvqIOVrWr8Jk77F2ll-Xcy4z0qgqYKJV9RLoEi48hZ8tCGUWYXniGk-W5thKpBtfHgrclivbbF2uRy5RI7i5Rgrvfu88UtrtGMQ03f3GGVyS1Y8fOGOGlJVI6HEOhjQcMo4R2YF_ZRHityE=w384-h333" alt="Structural view of the university management system">
-    <figcaption>Figure 2: Structural view of the university management system</figcaption>
-  </figure>
-
-  <div class="analysis-card">
-    <h3>Architectural Evaluation</h3>
-    <h4>Data Requirements &amp; Structural Characteristics</h4>
-    <ul>
-      <li><b>Clear entities:</b> Students, courses, instructors, departments, enrollments, and grades.</li>
-      <li><b>Many-to-Many cardinality:</b> Students register for multiple courses, and courses host multiple students.</li>
-      <li><b>Reporting-heavy workloads:</b> Heavy utilization of aggregate SQL operations (GPA calculation, graduation clearance, transcripts).</li>
-    </ul>
-
-    <h4>Why the Relational Model Fits</h4>
-    <ul>
-      <li><b>Junction tables:</b> An <code>ENROLLMENT</code> table bridges the many-to-many relationship seamlessly with foreign keys.</li>
-      <li><b>Analytical aggregations:</b> Built-in relational aggregations (<code>JOIN</code>, <code>GROUP BY</code>, <code>HAVING</code>) process academic reports smoothly.</li>
-      <li><b>Ecosystem maturity:</b> Academic registrar software relies heavily on relational engines for verified student records.</li>
-    </ul>
-
-    <h4>Why Alternative Models Fall Short</h4>
-    <div class="comparison-table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Alternative Model</th>
-            <th>Why It Is a Poor Fit Here</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><b>Graph</b></td>
-            <td>While helpful for tracking prerequisite courses, graph stores do not prioritize the transactional and tabular reporting needs of student transcripts.</td>
-          </tr>
-          <tr>
-            <td><b>Hierarchical</b></td>
-            <td>Strict parent-child relationships cannot model M:N course enrollments without substantial, redundant record duplication.</td>
-          </tr>
-          <tr>
-            <td><b>Document (NoSQL)</b></td>
-            <td>Embedding grade records inside student documents creates data sync conflicts when updating shared course details.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <p><b>Verdict:</b> The <b>Relational Model</b> remains the premier choice for university administrative engines.</p>
-  </div>
-
-  <div class="divider"><span></span></div>
-
-  <!-- Domain 3: Organizational Hierarchy -->
-  <h2 id="organizational-hierarchy">3. Organizational Hierarchy</h2>
-  <p>Corporate reporting chains, division trees, and department oversight follow clear downward chains of command.</p>
-
-  <figure>
-    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEg17xvpoiOZt9Doy8VzTLBvhiHp6dKXnGbz2YehsRLKePl6u1zJJ6vGoQHfobuHnCumKjkZjZeCr6VIwSrpHBkxj0Sv1ESlw29pKtaEhW0DDrHVTcERe8d6ZMq4M6N1T-zQC4h2yJT6xsOPTW7TAtkQyIIkW7gSmq5x7L0J_WdSo13f62VxWmgX9j6lDIQ9=w391-h334" alt="Structural view of the organizational hierarchy">
-    <figcaption>Figure 3: Structural view of the organizational hierarchy</figcaption>
-  </figure>
-
-  <div class="analysis-card hierarchical">
-    <h3>Architectural Evaluation</h3>
-    <h4>Data Requirements &amp; Structural Characteristics</h4>
-    <ul>
-      <li><b>Tree-shaped hierarchy:</b> A CEO represents the root node, followed by VPs, managers, and staff members.</li>
-      <li><b>Single-parent ownership:</b> In standard corporate hierarchies, every individual has exactly one designated reporting manager.</li>
-      <li><b>Directional traversal:</b> Queries focus on drilling down subordinate teams or tracing up to department heads.</li>
-    </ul>
-
-    <h4>Why the Hierarchical Model Fits</h4>
-    <ul>
-      <li><b>Natural tree alignment:</b> Strict parent-child models match the single supervisor structure without intermediate link tables.</li>
-      <li><b>Fast directional retrieval:</b> Hierarchical traversal walks the tree directly up or down without multi-table relational joins.</li>
-      <li><b>Structural simplicity:</b> Prevents accidental cyclic reporting loops by enforcing an inverted tree architecture.</li>
-    </ul>
-
-    <h4>Why Alternative Models Fall Short</h4>
-    <div class="comparison-table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Alternative Model</th>
-            <th>Why It Is a Poor Fit Here</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><b>Relational (Flat Tables)</b></td>
-            <td>Requires complex recursive CTE queries or multiple self-joins to resolve unbounded parent-child reporting depths.</td>
-          </tr>
-          <tr>
-            <td><b>Document (NoSQL)</b></td>
-            <td>Deeply nesting staff objects inside managers makes updating an employee's title or department inefficient.</td>
-          </tr>
-          <tr>
-            <td><b>Graph</b></td>
-            <td>While functional, graph properties are overly complex for strict single-parent reporting structures that have no cyclic links.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <p><b>Verdict:</b> The <b>Hierarchical Model</b> (or self-referencing tree representation) fits internal corporate management structures naturally.</p>
-  </div>
-
-  <div class="divider"><span></span></div>
-
-  <!-- Domain 4: Social Networking System -->
-  <h2 id="social-networking">4. Social Networking System</h2>
-  <p>Platforms like LinkedIn, Instagram, and X require managing billions of dynamic connections, followers, groups, and interaction streams.</p>
-
-  <div class="analysis-card graph">
-    <h3>Architectural Evaluation</h3>
-    <h4>Data Requirements &amp; Structural Characteristics</h4>
-    <ul>
-      <li><b>Graph-centric topology:</b> Users, posts, tags, and media act as nodes; follows, likes, shares, and mentions act as edges.</li>
-      <li><b>Many-to-Many interconnectedness:</b> Entities form webbed, multi-directional relations that change dynamically in real time.</li>
-      <li><b>Multi-hop traversals:</b> Workloads frequently query 2nd- and 3rd-degree friend suggestions, recommendation loops, and mutual contact lists.</li>
-    </ul>
-
-    <h4>Why the Graph Model Fits</h4>
-    <ul>
-      <li><b>Index-free adjacency:</b> Traversing edges requires no foreign key indexing lookups, keeping hop traversal time constant regardless of overall dataset size.</li>
-      <li><b>Rich edge semantics:</b> Relationships can store meaningful metadata properties (such as <code>since</code>, <code>affinity_score</code>, or <code>interaction_type</code>).</li>
-      <li><b>Natural recommendation queries:</b> Graph query languages (like Cypher) resolve deep connection chains in concise statements compared to deep relational joins.</li>
-    </ul>
-
-    <h4>Why Alternative Models Fall Short</h4>
-    <div class="comparison-table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Alternative Model</th>
-            <th>Why It Is a Poor Fit Here</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><b>Relational</b></td>
-            <td>Multi-hop friendship queries require cascading recursive joins that degrade rapidly in latency as connection depth increases.</td>
-          </tr>
-          <tr>
-            <td><b>Hierarchical</b></td>
-            <td>Fails completely because social networks have no root node and feature dense, many-to-many cyclic connections.</td>
-          </tr>
-          <tr>
-            <td><b>Document (NoSQL)</b></td>
-            <td>Cannot model mutual friendships cleanly without duplicating user reference arrays and introducing major data synchronization issues.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <p><b>Verdict:</b> The <b>Graph Model</b> is the undisputed choice for social graphs, connection engines, and recommendation pipelines.</p>
-  </div>
-
-  <div class="divider"><span></span></div>
-
-  <!-- Consolidated Comparison -->
-  <h2 id="comparative-summary">Consolidated Comparison</h2>
-  <p>The matrix below summarizes the operational trade-offs and structural characteristics across all four application domains:</p>
-
-  <div class="comparison-table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Application Domain</th>
-          <th>Primary Entity Structure</th>
-          <th>Relationship Shape</th>
-          <th>Optimal Data Model</th>
-          <th>Primary Justification</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><b>Banking System</b></td>
-          <td>Fixed &amp; tabular</td>
-          <td>1:N, stable &amp; shallow</td>
-          <td><b>Relational</b></td>
-          <td>Strict ACID compliance and multi-row referential integrity.</td>
-        </tr>
-        <tr>
-          <td><b>University Management</b></td>
-          <td>Structured entities</td>
-          <td>M:N (via junction tables)</td>
-          <td><b>Relational</b></td>
-          <td>Complex analytical queries, reporting, and reliable transcript generation.</td>
-        </tr>
-        <tr>
-          <td><b>Organizational Hierarchy</b></td>
-          <td>Parent-child records</td>
-          <td>1:N strict inverted tree</td>
-          <td><b>Hierarchical</b></td>
-          <td>Single-parent rule and predictable top-down/bottom-up tree traversal.</td>
-        </tr>
-        <tr>
-          <td><b>Social Network</b></td>
-          <td>Interlinked entities</td>
-          <td>M:N cyclic &amp; arbitrary</td>
-          <td><b>Graph</b></td>
-          <td>Index-free adjacency for high-speed multi-degree network traversals.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="divider"><span></span></div>
-
-  <!-- Conclusion & Verdicts -->
-  <h2 id="conclusion">Conclusion &amp; Key Verdicts</h2>
-  <p>Selecting an effective database architecture requires aligning domain relationship patterns with database storage models:</p>
-
-  <div class="outcome-grid">
-    <div class="outcome-card banking">
-      <b>Banking Systems</b>
-      <p style="margin:8px 0 0; font-size:15px; line-height:1.6;">Require the <b>Relational Model</b> to prevent ledger inconsistencies and ensure transactional atomicity across account transfers.</p>
-    </div>
-    <div class="outcome-card university">
-      <b>University Systems</b>
-      <p style="margin:8px 0 0; font-size:15px; line-height:1.6;">Rely on the <b>Relational Model</b> to handle complex course junction tables, semester GPA calculations, and formal reporting.</p>
-    </div>
-    <div class="outcome-card org">
-      <b>Organizational Systems</b>
-      <p style="margin:8px 0 0; font-size:15px; line-height:1.6;">Leverage the <b>Hierarchical Model</b> to cleanly reflect corporate chains of command without recursive joins or redundant keys.</p>
-    </div>
-    <div class="outcome-card social">
-      <b>Social Networks</b>
-      <p style="margin:8px 0 0; font-size:15px; line-height:1.6;">Require the <b>Graph Model</b> to resolve deep, multi-hop relationship queries and community recommendations in constant time.</p>
-    </div>
-  </div>
-
-  <h2 id="future-scope">Future Scope &amp; Polyglot Systems</h2>
-  <p>In modern enterprise scale, applications rarely rely on a single data model exclusively. The industry standard has shifted toward <b>Polyglot Persistence</b> and unified multi-model database systems:</p>
-  <ul>
-    <li><b>Polyglot Persistence Architecture:</b> Enterprises segment responsibilities—a banking application may use PostgreSQL for financial ledger processing while running Neo4j for anti-money laundering (AML) fraud detection graphs.</li>
-    <li><b>Multi-Model Databases:</b> Modern engines (such as ArangoDB, Azure Cosmos DB, or Amazon Aurora) support document, relational, and graph representations natively under one unified query interface.</li>
-    <li><b>Distributed Event Streaming:</b> Event buses like Apache Kafka synchronize state changes across specialized data models in real time without creating tight schema dependencies.</li>
-  </ul>
-
-</article>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Analyzing File System Limitations in a College Environment</title>
 <style>
   :root{
@@ -2193,6 +1180,1019 @@ GROUP BY d.Department_ID, d.Department_Name, e.Semester;</code></pre>
       <p style="margin:8px 0 0; font-size:15px; line-height:1.6;">Demonstrates practical mastery of stakeholder view isolation, logical entity modeling, and physical data independence.</p>
     </div>
   </div>
+
+</article>
+</body>
+</html>
+
+3<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choosing the Right Data Model for Complex Systems</title>
+<style>
+  :root{
+    --paper:#f8f7f3;
+    --grid-line:rgba(46,76,138,0.045);
+    --ink:#1b2030;
+    --ink-muted:#5a6070;
+    --internal:#5c6570;
+    --internal-tint:#edeeec;
+    --conceptual:#2e4c8a;
+    --conceptual-tint:#e8ecf6;
+    --external:#147d74;
+    --external-tint:#e3f2f0;
+    --hairline:#dcd7ca;
+    --code-bg:#eeece5;
+    --code-ink:#33424e;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    background-color:var(--paper);
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size:34px 34px;
+    color:var(--ink);
+  }
+
+  .db-article{
+    max-width:720px;
+    margin:0 auto;
+    padding:56px 24px 100px;
+  }
+
+  p{
+    font-family:'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+    font-size:18px;
+    line-height:1.75;
+    color:var(--ink);
+    margin:0 0 22px;
+  }
+
+  h2{
+    font-family:Georgia, 'Times New Roman', serif;
+    font-size:30px;
+    line-height:1.25;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+    margin:64px 0 20px;
+    scroll-margin-top:24px;
+  }
+  .db-article > h2:first-of-type{margin-top:0;}
+
+  h3{
+    font-family:Georgia, 'Times New Roman', serif;
+    font-size:22px;
+    font-weight:700;
+    margin:40px 0 16px;
+    scroll-margin-top:24px;
+  }
+
+  h4{
+    font-family:Georgia, 'Times New Roman', serif;
+    font-size:16.5px;
+    font-weight:700;
+    margin:0 0 10px;
+  }
+
+  ul{ padding-left:0; margin:0 0 22px; list-style:none; }
+  li{
+    font-family:'Palatino Linotype', Palatino, Georgia, serif;
+    font-size:17px;
+    line-height:1.7;
+    color:var(--ink);
+    margin:0 0 12px;
+    padding-left:20px;
+    position:relative;
+  }
+  li::before{
+    content:"";
+    position:absolute; left:0; top:10px;
+    width:6px; height:6px;
+    background:var(--ink-muted);
+    border-radius:1px;
+  }
+
+  code{
+    font-family:'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size:0.87em;
+    background:var(--code-bg);
+    color:var(--code-ink);
+    padding:2px 7px;
+    border-radius:4px;
+  }
+
+  b{font-weight:700;}
+
+  /* Hero: Layer Stack */
+  .layer-hero{
+    border:1px solid var(--hairline);
+    background:#fff;
+    border-radius:10px;
+    padding:28px 28px 24px;
+    margin-bottom:12px;
+  }
+  .layer-hero-title{
+    font-family:'SFMono-Regular', Consolas, monospace;
+    font-size:12px;
+    letter-spacing:0.04em;
+    color:var(--ink-muted);
+    margin:0 0 18px;
+    text-transform:uppercase;
+  }
+  .layer{
+    display:flex; align-items:center; gap:14px;
+    padding:13px 16px; border-radius:6px; margin-bottom:8px;
+    font-family:Georgia, serif; font-size:15px; font-weight:700;
+  }
+  .layer:last-child{margin-bottom:0;}
+  .layer-dot{width:10px;height:10px;border-radius:50%;flex:none;}
+  .layer.relational{background:var(--conceptual-tint); color:var(--conceptual); width:100%;}
+  .layer.graph{background:var(--external-tint); color:var(--external); width:92%; margin-left:4%;}
+  .layer.hierarchical{background:var(--internal-tint); color:var(--internal); width:84%; margin-left:8%;}
+  .layer.document{background:rgba(46,76,138,0.08); color:var(--ink); width:76%; margin-left:12%;}
+  .layer.relational .layer-dot{background:var(--conceptual);}
+  .layer.graph .layer-dot{background:var(--external);}
+  .layer.hierarchical .layer-dot{background:var(--internal);}
+  .layer.document .layer-dot{background:var(--ink);}
+
+  /* Contents */
+  .toc{
+    border:1px solid var(--hairline);
+    border-radius:10px;
+    padding:20px 26px;
+    margin:40px 0 8px;
+    background:rgba(255,255,255,0.55);
+  }
+  .toc-label{ font-family:Georgia, serif; font-weight:700; font-size:15px; margin:0 0 12px; }
+  .toc ol{ margin:0; padding-left:20px; columns:2; column-gap:28px; }
+  .toc li{ font-family:'Palatino Linotype', Palatino, Georgia, serif; font-size:14.5px; padding-left:0; margin-bottom:9px; break-inside:avoid; }
+  .toc li::before{display:none;}
+  .toc a{ color:var(--conceptual); text-decoration:none; border-bottom:1px solid transparent; }
+  .toc a:hover, .toc a:focus-visible{border-bottom-color:var(--conceptual);}
+
+  /* Figures */
+  figure{margin:32px 0;}
+  figure img{ display:block; width:100%; height:auto; border-radius:10px; border:1px solid var(--hairline); }
+  figcaption{
+    font-family:'SFMono-Regular', Consolas, monospace;
+    font-size:12.5px; color:var(--ink-muted);
+    text-align:center; margin-top:10px; letter-spacing:0.01em;
+  }
+
+  /* Dividers */
+  .divider{ display:flex; align-items:center; justify-content:center; margin:64px 0; }
+  .divider span{ width:5px;height:5px;border-radius:50%; background:var(--hairline); margin:0 6px; }
+  .divider::before, .divider::after{ content:""; flex:1; height:1px; background:var(--hairline); }
+
+  /* Comparison / Level Cards */
+  .level-grid{ display:flex; gap:16px; margin:0 0 22px; }
+  .level-card{ flex:1; border-left:3px solid var(--hairline); background:#fff; border-radius:0 8px 8px 0; padding:18px 20px; }
+  .level-card p, .level-card li{margin:0;}
+  .level-card.relational{border-left-color:var(--conceptual);}
+  .level-card.graph{border-left-color:var(--external);}
+  .level-card.hierarchical{border-left-color:var(--internal);}
+  .level-card.document{border-left-color:var(--ink-muted);}
+  .level-card b{ display:block; margin-bottom:6px; font-family:Georgia,serif; font-size:15.5px; }
+  .level-card.relational b{color:var(--conceptual);}
+  .level-card.graph b{color:var(--external);}
+  .level-card.hierarchical b{color:var(--internal);}
+  .level-card.document b{color:var(--ink);}
+
+  /* Analysis Cards */
+  .analysis-card{
+    background:#fff; border:1px solid var(--hairline);
+    border-left:4px solid var(--conceptual);
+    border-radius:0 10px 10px 0;
+    padding:14px 28px 12px; margin:24px 0 44px;
+  }
+  .analysis-card.graph{border-left-color:var(--external);}
+  .analysis-card.hierarchical{border-left-color:var(--internal);}
+  .analysis-card.document{border-left-color:var(--ink-muted);}
+  .analysis-card h3{margin-top:16px; color:var(--conceptual);}
+  .analysis-card.graph h3{color:var(--external);}
+  .analysis-card.hierarchical h3{color:var(--internal);}
+  .analysis-card.document h3{color:var(--ink);}
+
+  /* Clean Tables */
+  .comparison-table-wrapper{
+    overflow-x:auto;
+    margin:20px 0 28px;
+    border:1px solid var(--hairline);
+    border-radius:8px;
+    background:#fff;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    text-align:left;
+    font-family:'Palatino Linotype', Palatino, Georgia, serif;
+    font-size:15px;
+  }
+  th{
+    background:var(--code-bg);
+    color:var(--ink);
+    padding:12px 16px;
+    font-family:Georgia, serif;
+    font-weight:700;
+    border-bottom:1px solid var(--hairline);
+  }
+  td{
+    padding:12px 16px;
+    border-bottom:1px solid var(--hairline);
+    vertical-align:top;
+    line-height:1.6;
+  }
+  tr:last-child td{border-bottom:none;}
+  td b{color:var(--ink);}
+
+  /* Conclusion Outcome Cards */
+  .outcome-grid{display:flex; gap:16px; margin:0 0 24px; flex-wrap:wrap;}
+  .outcome-card{flex:1 1 calc(50% - 16px); background:#fff; border:1px solid var(--hairline); border-radius:8px; padding:18px 20px;}
+  .outcome-card::before{display:none;}
+  .outcome-card.banking{border-top:3px solid var(--conceptual);}
+  .outcome-card.social{border-top:3px solid var(--external);}
+  .outcome-card.university{border-top:3px solid var(--conceptual);}
+  .outcome-card.org{border-top:3px solid var(--internal);}
+
+  a{color:var(--conceptual);}
+  *:focus-visible{outline:2px solid var(--conceptual); outline-offset:2px;}
+
+  @media (max-width:680px){
+    .db-article{padding:40px 18px 72px;}
+    h2{font-size:25px; margin-top:48px;}
+    h3{font-size:19px;}
+    p, li{font-size:16px;}
+    .level-grid{flex-direction:column;}
+    .outcome-grid{flex-direction:column;}
+    .outcome-card{flex:1 1 100%;}
+    .toc ol{columns:1;}
+    .layer.graph{width:96%; margin-left:2%;}
+    .layer.hierarchical{width:92%; margin-left:4%;}
+    .layer.document{width:88%; margin-left:6%;}
+  }
+</style>
+</head>
+<body>
+<article class="db-article">
+
+  <!-- Authors & Activity Block -->
+  <div style="margin-bottom: 48px;">
+    <p style="font-family: Georgia, serif; font-size: 16px; color: var(--ink-muted); margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--hairline);">
+      <b>Authors:</b> Manav Pal (Roll No. 51), Kavit Pallicha (Roll No. 53), Viraj Pamale (Roll No. 54)
+    </p>
+    <div style="background: #fff; border: 1px solid var(--hairline); border-left: 4px solid var(--conceptual); padding: 24px; border-radius: 8px;">
+      <h4 style="margin-top: 0; color: var(--conceptual); font-size: 18px; margin-bottom: 16px;">Objective &amp; Scope</h4>
+      <p style="font-size: 16px; margin-bottom: 0; line-height: 1.6;">Analyze the data requirements and structural characteristics of four representative application domains—<b>a banking system</b>, <b>a university management system</b>, <b>an organizational hierarchy</b>, and <b>a social networking system</b>—to determine the most appropriate data model for each. Justifications are evaluated based on entity stability, relationship cardinality, query traversal patterns, and transactional consistency.</p>
+    </div>
+  </div>
+
+  <!-- Hero: Data Models Overview -->
+  <div class="layer-hero">
+    <p class="layer-hero-title">Core Data Models Analyzed</p>
+    <div class="layer relational"><span class="layer-dot"></span>Relational Model (Tabular, Strict Schema &amp; ACID)</div>
+    <div class="layer graph"><span class="layer-dot"></span>Graph Model (Nodes, Edges &amp; Deep Traversal)</div>
+    <div class="layer hierarchical"><span class="layer-dot"></span>Hierarchical Model (Strict Single-Parent Tree)</div>
+    <div class="layer document"><span class="layer-dot"></span>Document Model (Flexible, Nested &amp; Schema-less NoSQL)</div>
+  </div>
+
+  <!-- Table of Contents -->
+  <nav class="toc" aria-label="Contents">
+    <p class="toc-label">Contents</p>
+    <ol>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#banking-system">1. Banking System</a></li>
+      <li><a href="#university-system">2. University Management</a></li>
+      <li><a href="#organizational-hierarchy">3. Organizational Hierarchy</a></li>
+      <li><a href="#social-networking">4. Social Networking System</a></li>
+      <li><a href="#comparative-summary">Consolidated Comparison</a></li>
+      <li><a href="#conclusion">Conclusion &amp; Key Verdicts</a></li>
+      <li><a href="#future-scope">Future Scope &amp; Polyglot Systems</a></li>
+    </ol>
+  </nav>
+
+  <h2 id="introduction">Introduction</h2>
+  <p>A data model is not merely an implementation detail; it is a direct reflection of how entities in the real world interact and link to one another. Selecting the right data model governs query performance, transactional integrity, horizontal scalability, and software maintainability over time.</p>
+  <p>No single database architecture is a universal answer. While high-frequency financial ledgers require rigid tabular constraints and immediate serializability, graph networks demand rapid link traversal, and document stores prioritize evolving hierarchical payloads.</p>
+
+  <div class="level-grid">
+    <div class="level-card relational"><b>Relational Model</b>Organized into tables of rows and columns, mapped through foreign keys, and protected by strict multi-row ACID properties.</div>
+    <div class="level-card graph"><b>Graph Model</b>Organized as interconnected nodes and relationship edges, built specifically for arbitrary multi-hop traversals.</div>
+  </div>
+  <div class="level-grid">
+    <div class="level-card hierarchical"><b>Hierarchical Model</b>Organized as a strict single-parent tree structure where every child record has exactly one owner node.</div>
+    <div class="level-card document"><b>Document Model</b>Flexible, semi-structured JSON/BSON documents tailored for nested, variable-depth records.</div>
+  </div>
+
+  <div class="divider"><span></span></div>
+
+  <!-- Domain 1: Banking System -->
+  <h2 id="banking-system">1. Banking System</h2>
+  <p>Banking architectures handle mission-critical financial ledgers where data integrity and consistency supersede every other engineering metric.</p>
+
+  <figure>
+    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiqbVA-rUdLFEeGQKYsTD9tbzJUTdYe99HL6CMt4IRRUbWble1TU9fgglDnTCBBftOcPzkulZORhYj1lpPWC4Hap0EZFFgjZ1EGQufKhaiTM8lfXcWjvpQqjmEgveD7oKYBb_L2WVfffq5_4kZtYuRBvnle8dOav7a3JYOyHoKWxJU5qlholck5gRsYDS3D=w454-h334" alt="Structural view of the banking system">
+    <figcaption>Figure 1: Structural view of the banking system</figcaption>
+  </figure>
+
+  <div class="analysis-card">
+    <h3>Architectural Evaluation</h3>
+    <h4>Data Requirements &amp; Structural Characteristics</h4>
+    <ul>
+      <li><b>Well-defined entities:</b> Customers, accounts, transactions, loans, and branches each possess fixed, predictable attributes.</li>
+      <li><b>Stable relationships:</b> A customer owns accounts, an account belongs to a branch, and transactions balance debit/credit records across accounts.</li>
+      <li><b>Strict consistency need:</b> Balances must be deterministic at all times; zero tolerance exists for eventual consistency or lost updates.</li>
+    </ul>
+
+    <h4>Why the Relational Model Fits</h4>
+    <ul>
+      <li><b>Structured, predictable schema:</b> Numerical balances, timestamps, and account keys align naturally into tabular structures.</li>
+      <li><b>ACID compliance:</b> Moving money between accounts must commit simultaneously or roll back completely.</li>
+      <li><b>Referential integrity &amp; auditability:</b> Foreign keys enforce valid account references, and check constraints prevent invalid states.</li>
+    </ul>
+
+    <h4>Why Alternative Models Fall Short</h4>
+    <div class="comparison-table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Alternative Model</th>
+            <th>Why It Is a Poor Fit Here</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Graph</b></td>
+            <td>Overkill for fixed, shallow relationships (customer → account → branch); lacks out-of-the-box transactional ACID safeguards needed for multi-record ledger balances.</td>
+          </tr>
+          <tr>
+            <td><b>Hierarchical</b></td>
+            <td>Cannot naturally capture transactions that reference two independent accounts (source and destination) without data duplication.</td>
+          </tr>
+          <tr>
+            <td><b>Document (NoSQL)</b></td>
+            <td>Loose schemas introduce integrity risks where currency and balance fields could vary across records without global constraints.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p><b>Verdict:</b> The <b>Relational Model</b> is the industry standard for banking due to non-negotiable ACID guarantees and schema rigidity.</p>
+  </div>
+
+  <div class="divider"><span></span></div>
+
+  <!-- Domain 2: University Management System -->
+  <h2 id="university-system">2. University Management System</h2>
+  <p>University Information Systems (SIS) serve wide departmental workflows, including student admissions, semester course registrations, and grade audits.</p>
+
+  <figure>
+    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEi2WP-NJVfSENCX25dsOevxziwobiSQ97_0FmoRsTIo5-nHELvqIOVrWr8Jk77F2ll-Xcy4z0qgqYKJV9RLoEi48hZ8tCGUWYXniGk-W5thKpBtfHgrclivbbF2uRy5RI7i5Rgrvfu88UtrtGMQ03f3GGVyS1Y8fOGOGlJVI6HEOhjQcMo4R2YF_ZRHityE=w384-h333" alt="Structural view of the university management system">
+    <figcaption>Figure 2: Structural view of the university management system</figcaption>
+  </figure>
+
+  <div class="analysis-card">
+    <h3>Architectural Evaluation</h3>
+    <h4>Data Requirements &amp; Structural Characteristics</h4>
+    <ul>
+      <li><b>Clear entities:</b> Students, courses, instructors, departments, enrollments, and grades.</li>
+      <li><b>Many-to-Many cardinality:</b> Students register for multiple courses, and courses host multiple students.</li>
+      <li><b>Reporting-heavy workloads:</b> Heavy utilization of aggregate SQL operations (GPA calculation, graduation clearance, transcripts).</li>
+    </ul>
+
+    <h4>Why the Relational Model Fits</h4>
+    <ul>
+      <li><b>Junction tables:</b> An <code>ENROLLMENT</code> table bridges the many-to-many relationship seamlessly with foreign keys.</li>
+      <li><b>Analytical aggregations:</b> Built-in relational aggregations (<code>JOIN</code>, <code>GROUP BY</code>, <code>HAVING</code>) process academic reports smoothly.</li>
+      <li><b>Ecosystem maturity:</b> Academic registrar software relies heavily on relational engines for verified student records.</li>
+    </ul>
+
+    <h4>Why Alternative Models Fall Short</h4>
+    <div class="comparison-table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Alternative Model</th>
+            <th>Why It Is a Poor Fit Here</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Graph</b></td>
+            <td>While helpful for tracking prerequisite courses, graph stores do not prioritize the transactional and tabular reporting needs of student transcripts.</td>
+          </tr>
+          <tr>
+            <td><b>Hierarchical</b></td>
+            <td>Strict parent-child relationships cannot model M:N course enrollments without substantial, redundant record duplication.</td>
+          </tr>
+          <tr>
+            <td><b>Document (NoSQL)</b></td>
+            <td>Embedding grade records inside student documents creates data sync conflicts when updating shared course details.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p><b>Verdict:</b> The <b>Relational Model</b> remains the premier choice for university administrative engines.</p>
+  </div>
+
+  <div class="divider"><span></span></div>
+
+  <!-- Domain 3: Organizational Hierarchy -->
+  <h2 id="organizational-hierarchy">3. Organizational Hierarchy</h2>
+  <p>Corporate reporting chains, division trees, and department oversight follow clear downward chains of command.</p>
+
+  <figure>
+    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEg17xvpoiOZt9Doy8VzTLBvhiHp6dKXnGbz2YehsRLKePl6u1zJJ6vGoQHfobuHnCumKjkZjZeCr6VIwSrpHBkxj0Sv1ESlw29pKtaEhW0DDrHVTcERe8d6ZMq4M6N1T-zQC4h2yJT6xsOPTW7TAtkQyIIkW7gSmq5x7L0J_WdSo13f62VxWmgX9j6lDIQ9=w391-h334" alt="Structural view of the organizational hierarchy">
+    <figcaption>Figure 3: Structural view of the organizational hierarchy</figcaption>
+  </figure>
+
+  <div class="analysis-card hierarchical">
+    <h3>Architectural Evaluation</h3>
+    <h4>Data Requirements &amp; Structural Characteristics</h4>
+    <ul>
+      <li><b>Tree-shaped hierarchy:</b> A CEO represents the root node, followed by VPs, managers, and staff members.</li>
+      <li><b>Single-parent ownership:</b> In standard corporate hierarchies, every individual has exactly one designated reporting manager.</li>
+      <li><b>Directional traversal:</b> Queries focus on drilling down subordinate teams or tracing up to department heads.</li>
+    </ul>
+
+    <h4>Why the Hierarchical Model Fits</h4>
+    <ul>
+      <li><b>Natural tree alignment:</b> Strict parent-child models match the single supervisor structure without intermediate link tables.</li>
+      <li><b>Fast directional retrieval:</b> Hierarchical traversal walks the tree directly up or down without multi-table relational joins.</li>
+      <li><b>Structural simplicity:</b> Prevents accidental cyclic reporting loops by enforcing an inverted tree architecture.</li>
+    </ul>
+
+    <h4>Why Alternative Models Fall Short</h4>
+    <div class="comparison-table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Alternative Model</th>
+            <th>Why It Is a Poor Fit Here</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Relational (Flat Tables)</b></td>
+            <td>Requires complex recursive CTE queries or multiple self-joins to resolve unbounded parent-child reporting depths.</td>
+          </tr>
+          <tr>
+            <td><b>Document (NoSQL)</b></td>
+            <td>Deeply nesting staff objects inside managers makes updating an employee's title or department inefficient.</td>
+          </tr>
+          <tr>
+            <td><b>Graph</b></td>
+            <td>While functional, graph properties are overly complex for strict single-parent reporting structures that have no cyclic links.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p><b>Verdict:</b> The <b>Hierarchical Model</b> (or self-referencing tree representation) fits internal corporate management structures naturally.</p>
+  </div>
+
+  <div class="divider"><span></span></div>
+
+  <!-- Domain 4: Social Networking System -->
+  <h2 id="social-networking">4. Social Networking System</h2>
+  <p>Platforms like LinkedIn, Instagram, and X require managing billions of dynamic connections, followers, groups, and interaction streams.</p>
+
+  <div class="analysis-card graph">
+    <h3>Architectural Evaluation</h3>
+    <h4>Data Requirements &amp; Structural Characteristics</h4>
+    <ul>
+      <li><b>Graph-centric topology:</b> Users, posts, tags, and media act as nodes; follows, likes, shares, and mentions act as edges.</li>
+      <li><b>Many-to-Many interconnectedness:</b> Entities form webbed, multi-directional relations that change dynamically in real time.</li>
+      <li><b>Multi-hop traversals:</b> Workloads frequently query 2nd- and 3rd-degree friend suggestions, recommendation loops, and mutual contact lists.</li>
+    </ul>
+
+    <h4>Why the Graph Model Fits</h4>
+    <ul>
+      <li><b>Index-free adjacency:</b> Traversing edges requires no foreign key indexing lookups, keeping hop traversal time constant regardless of overall dataset size.</li>
+      <li><b>Rich edge semantics:</b> Relationships can store meaningful metadata properties (such as <code>since</code>, <code>affinity_score</code>, or <code>interaction_type</code>).</li>
+      <li><b>Natural recommendation queries:</b> Graph query languages (like Cypher) resolve deep connection chains in concise statements compared to deep relational joins.</li>
+    </ul>
+
+    <h4>Why Alternative Models Fall Short</h4>
+    <div class="comparison-table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Alternative Model</th>
+            <th>Why It Is a Poor Fit Here</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Relational</b></td>
+            <td>Multi-hop friendship queries require cascading recursive joins that degrade rapidly in latency as connection depth increases.</td>
+          </tr>
+          <tr>
+            <td><b>Hierarchical</b></td>
+            <td>Fails completely because social networks have no root node and feature dense, many-to-many cyclic connections.</td>
+          </tr>
+          <tr>
+            <td><b>Document (NoSQL)</b></td>
+            <td>Cannot model mutual friendships cleanly without duplicating user reference arrays and introducing major data synchronization issues.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p><b>Verdict:</b> The <b>Graph Model</b> is the undisputed choice for social graphs, connection engines, and recommendation pipelines.</p>
+  </div>
+
+  <div class="divider"><span></span></div>
+
+  <!-- Consolidated Comparison -->
+  <h2 id="comparative-summary">Consolidated Comparison</h2>
+  <p>The matrix below summarizes the operational trade-offs and structural characteristics across all four application domains:</p>
+
+  <div class="comparison-table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Application Domain</th>
+          <th>Primary Entity Structure</th>
+          <th>Relationship Shape</th>
+          <th>Optimal Data Model</th>
+          <th>Primary Justification</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>Banking System</b></td>
+          <td>Fixed &amp; tabular</td>
+          <td>1:N, stable &amp; shallow</td>
+          <td><b>Relational</b></td>
+          <td>Strict ACID compliance and multi-row referential integrity.</td>
+        </tr>
+        <tr>
+          <td><b>University Management</b></td>
+          <td>Structured entities</td>
+          <td>M:N (via junction tables)</td>
+          <td><b>Relational</b></td>
+          <td>Complex analytical queries, reporting, and reliable transcript generation.</td>
+        </tr>
+        <tr>
+          <td><b>Organizational Hierarchy</b></td>
+          <td>Parent-child records</td>
+          <td>1:N strict inverted tree</td>
+          <td><b>Hierarchical</b></td>
+          <td>Single-parent rule and predictable top-down/bottom-up tree traversal.</td>
+        </tr>
+        <tr>
+          <td><b>Social Network</b></td>
+          <td>Interlinked entities</td>
+          <td>M:N cyclic &amp; arbitrary</td>
+          <td><b>Graph</b></td>
+          <td>Index-free adjacency for high-speed multi-degree network traversals.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="divider"><span></span></div>
+
+  <!-- Conclusion & Verdicts -->
+  <h2 id="conclusion">Conclusion &amp; Key Verdicts</h2>
+  <p>Selecting an effective database architecture requires aligning domain relationship patterns with database storage models:</p>
+
+  <div class="outcome-grid">
+    <div class="outcome-card banking">
+      <b>Banking Systems</b>
+      <p style="margin:8px 0 0; font-size:15px; line-height:1.6;">Require the <b>Relational Model</b> to prevent ledger inconsistencies and ensure transactional atomicity across account transfers.</p>
+    </div>
+    <div class="outcome-card university">
+      <b>University Systems</b>
+      <p style="margin:8px 0 0; font-size:15px; line-height:1.6;">Rely on the <b>Relational Model</b> to handle complex course junction tables, semester GPA calculations, and formal reporting.</p>
+    </div>
+    <div class="outcome-card org">
+      <b>Organizational Systems</b>
+      <p style="margin:8px 0 0; font-size:15px; line-height:1.6;">Leverage the <b>Hierarchical Model</b> to cleanly reflect corporate chains of command without recursive joins or redundant keys.</p>
+    </div>
+    <div class="outcome-card social">
+      <b>Social Networks</b>
+      <p style="margin:8px 0 0; font-size:15px; line-height:1.6;">Require the <b>Graph Model</b> to resolve deep, multi-hop relationship queries and community recommendations in constant time.</p>
+    </div>
+  </div>
+
+  <h2 id="future-scope">Future Scope &amp; Polyglot Systems</h2>
+  <p>In modern enterprise scale, applications rarely rely on a single data model exclusively. The industry standard has shifted toward <b>Polyglot Persistence</b> and unified multi-model database systems:</p>
+  <ul>
+    <li><b>Polyglot Persistence Architecture:</b> Enterprises segment responsibilities—a banking application may use PostgreSQL for financial ledger processing while running Neo4j for anti-money laundering (AML) fraud detection graphs.</li>
+    <li><b>Multi-Model Databases:</b> Modern engines (such as ArangoDB, Azure Cosmos DB, or Amazon Aurora) support document, relational, and graph representations natively under one unified query interface.</li>
+    <li><b>Distributed Event Streaming:</b> Event buses like Apache Kafka synchronize state changes across specialized data models in real time without creating tight schema dependencies.</li>
+  </ul>
+
+</article>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Independence in University Database Systems</title>
+<style>
+  :root{
+    --paper:#f8f7f3;
+    --grid-line:rgba(46,76,138,0.045);
+    --ink:#1b2030;
+    --ink-muted:#5a6070;
+    --internal:#5c6570;
+    --internal-tint:#edeeec;
+    --conceptual:#2e4c8a;
+    --conceptual-tint:#e8ecf6;
+    --external:#147d74;
+    --external-tint:#e3f2f0;
+    --hairline:#dcd7ca;
+    --code-bg:#eeece5;
+    --code-ink:#33424e;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    background-color:var(--paper);
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size:34px 34px;
+    color:var(--ink);
+  }
+
+  .db-article{
+    max-width:720px;
+    margin:0 auto;
+    padding:56px 24px 100px;
+  }
+
+  p{
+    font-family:'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+    font-size:18px;
+    line-height:1.75;
+    color:var(--ink);
+    margin:0 0 22px;
+  }
+
+  h2{
+    font-family:Georgia, 'Times New Roman', serif;
+    font-size:30px;
+    line-height:1.25;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+    margin:64px 0 20px;
+    scroll-margin-top:24px;
+  }
+  .db-article > h2:first-of-type{margin-top:0;}
+
+  h3{
+    font-family:Georgia, 'Times New Roman', serif;
+    font-size:22px;
+    font-weight:700;
+    margin:40px 0 16px;
+    scroll-margin-top:24px;
+  }
+
+  h4{
+    font-family:Georgia, 'Times New Roman', serif;
+    font-size:16.5px;
+    font-weight:700;
+    margin:0 0 10px;
+  }
+
+  ul{ padding-left:0; margin:0 0 22px; list-style:none; }
+  li{
+    font-family:'Palatino Linotype', Palatino, Georgia, serif;
+    font-size:17px;
+    line-height:1.7;
+    color:var(--ink);
+    margin:0 0 12px;
+    padding-left:20px;
+    position:relative;
+  }
+  li::before{
+    content:"";
+    position:absolute; left:0; top:10px;
+    width:6px; height:6px;
+    background:var(--ink-muted);
+    border-radius:1px;
+  }
+
+  code{
+    font-family:'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size:0.87em;
+    background:var(--code-bg);
+    color:var(--code-ink);
+    padding:2px 7px;
+    border-radius:4px;
+  }
+
+  b{font-weight:700;}
+
+  /* Hero: layer stack */
+  .layer-hero{
+    border:1px solid var(--hairline);
+    background:#fff;
+    border-radius:10px;
+    padding:28px 28px 24px;
+    margin-bottom:12px;
+  }
+  .layer-hero-title{
+    font-family:'SFMono-Regular', Consolas, monospace;
+    font-size:12px;
+    letter-spacing:0.04em;
+    color:var(--ink-muted);
+    margin:0 0 18px;
+  }
+  .layer{
+    display:flex; align-items:center; gap:14px;
+    padding:13px 16px; border-radius:6px; margin-bottom:8px;
+    font-family:Georgia, serif; font-size:15px; font-weight:700;
+  }
+  .layer:last-child{margin-bottom:0;}
+  .layer-dot{width:10px;height:10px;border-radius:50%;flex:none;}
+  .layer.external{background:var(--external-tint); color:var(--external); width:100%;}
+  .layer.conceptual{background:var(--conceptual-tint); color:var(--conceptual); width:88%; margin-left:6%;}
+  .layer.internal{background:var(--internal-tint); color:var(--internal); width:76%; margin-left:12%;}
+  .layer.external .layer-dot{background:var(--external);}
+  .layer.conceptual .layer-dot{background:var(--conceptual);}
+  .layer.internal .layer-dot{background:var(--internal);}
+
+  /* Contents */
+  .toc{
+    border:1px solid var(--hairline);
+    border-radius:10px;
+    padding:20px 26px;
+    margin:40px 0 8px;
+    background:rgba(255,255,255,0.55);
+  }
+  .toc-label{ font-family:Georgia, serif; font-weight:700; font-size:15px; margin:0 0 12px; }
+  .toc ol{ margin:0; padding-left:20px; columns:2; column-gap:28px; }
+  .toc li{ font-family:'Palatino Linotype', Palatino, Georgia, serif; font-size:14.5px; padding-left:0; margin-bottom:9px; break-inside:avoid; }
+  .toc li::before{display:none;}
+  .toc a{ color:var(--conceptual); text-decoration:none; border-bottom:1px solid transparent; }
+  .toc a:hover, .toc a:focus-visible{border-bottom-color:var(--conceptual);}
+
+  /* figures */
+  figure{margin:32px 0;}
+  figure img{ display:block; width:100%; height:auto; border-radius:10px; border:1px solid var(--hairline); }
+  figcaption{
+    font-family:'SFMono-Regular', Consolas, monospace;
+    font-size:12.5px; color:var(--ink-muted);
+    text-align:center; margin-top:10px; letter-spacing:0.01em;
+  }
+
+  /* dividers */
+  .divider{ display:flex; align-items:center; justify-content:center; margin:64px 0; }
+  .divider span{ width:5px;height:5px;border-radius:50%; background:var(--hairline); margin:0 6px; }
+  .divider::before, .divider::after{ content:""; flex:1; height:1px; background:var(--hairline); }
+
+  /* comparison / phase cards */
+  .level-grid{ display:flex; gap:16px; margin:0 0 22px; }
+  .level-card{ flex:1; border-left:3px solid var(--hairline); background:#fff; border-radius:0 8px 8px 0; padding:18px 20px; }
+  .level-card p, .level-card li{margin:0;}
+  .level-card.internal{border-left-color:var(--internal);}
+  .level-card.conceptual{border-left-color:var(--conceptual);}
+  .level-card b{ display:block; margin-bottom:6px; font-family:Georgia,serif; font-size:15.5px; }
+  .level-card.internal b{color:var(--internal);}
+  .level-card.conceptual b{color:var(--conceptual);}
+
+  /* three-level list */
+  .three-level li{padding-left:18px; border-left:3px solid var(--hairline); margin-bottom:14px;}
+  .three-level li::before{display:none;}
+  .three-level li.internal{border-left-color:var(--internal);}
+  .three-level li.conceptual{border-left-color:var(--conceptual);}
+  .three-level li.external{border-left-color:var(--external);}
+
+  /* analysis cards */
+  .analysis-card{
+    background:#fff; border:1px solid var(--hairline);
+    border-left:4px solid var(--internal);
+    border-radius:0 10px 10px 0;
+    padding:8px 28px 6px; margin:24px 0 44px;
+  }
+  .analysis-card.conceptual{border-left-color:var(--conceptual);}
+  .analysis-card h3{color:var(--internal); margin-top:26px;}
+  .analysis-card.conceptual h3{color:var(--conceptual);}
+
+  /* takeaways */
+  .takeaway{ border-left:3px solid var(--hairline); padding-left:18px; margin-bottom:16px; }
+  .takeaway::before{display:none;}
+  .takeaway.views{border-left-color:var(--external);}
+
+  /* conclusion outcome cards */
+  .outcome-grid{display:flex; gap:16px; margin:0 0 24px;}
+  .outcome-card{flex:1; background:#fff; border:1px solid var(--hairline); border-radius:8px; padding:18px 20px;}
+  .outcome-card::before{display:none;}
+  .outcome-card.internal{border-top:3px solid var(--internal);}
+  .outcome-card.conceptual{border-top:3px solid var(--conceptual);}
+
+  a{color:var(--conceptual);}
+  *:focus-visible{outline:2px solid var(--conceptual); outline-offset:2px;}
+
+  @media (max-width:680px){
+    .db-article{padding:40px 18px 72px;}
+    h2{font-size:25px; margin-top:48px;}
+    h3{font-size:19px;}
+    p, li{font-size:16px;}
+    .level-grid, .outcome-grid{flex-direction:column;}
+    .toc ol{columns:1;}
+    .layer.conceptual{width:92%; margin-left:4%;}
+    .layer.internal{width:84%; margin-left:8%;}
+  }
+</style>
+</head>
+<body>
+<article class="db-article">
+
+  <!-- Authors & Scenario Block Added Here -->
+  <div style="margin-bottom: 48px;">
+    <p style="font-family: Georgia, serif; font-size: 16px; color: var(--ink-muted); margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--hairline);">
+      <b>Authors:</b> Armaan Palan(Roll No. 52), Om Pandey(Roll No. 60), Dipanshu Pandey(Roll No. 58)
+    </p>
+    <div style="background: #fff; border: 1px solid var(--hairline); border-left: 4px solid var(--conceptual); padding: 24px; border-radius: 8px;">
+      <h4 style="margin-top: 0; color: var(--conceptual); font-size: 18px; margin-bottom: 16px;">Activity Scenario</h4>
+      <p style="font-size: 16px; margin-bottom: 16px; line-height: 1.6;"><b>Scenario:</b> A university plans to improve database performance by changing its physical storage structure and file organization. The university wants existing student applications to continue functioning without modification. Later, the university plans to reorganize the conceptual structure of the database to introduce additional academic information.</p>
+      <p style="font-size: 16px; margin-bottom: 0; line-height: 1.6;"><b>Question:</b> Analyze the two proposed changes and determine which level of the Three-Schema Architecture is affected in each case. Identify the type of data independence involved and justify whether application programs need modification.</p>
+    </div>
+  </div>
+
+  <div class="layer-hero">
+    <p class="layer-hero-title">three-schema architecture</p>
+    <div class="layer external"><span class="layer-dot"></span>External (View) Level</div>
+    <div class="layer conceptual"><span class="layer-dot"></span>Conceptual (Logical) Level</div>
+    <div class="layer internal"><span class="layer-dot"></span>Internal (Physical) Level</div>
+  </div>
+
+  <nav class="toc" aria-label="Contents">
+    <p class="toc-label">Contents</p>
+    <ol>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#what-is-data-independence">What is Data Independence?</a></li>
+      <li><a href="#problem-statement">Problem Statement &amp; Scenario Analysis</a></li>
+      <li><a href="#solution-analysis">Analyzing the Two Proposed Changes: The Solution</a></li>
+      <li><a href="#why-harder">Why is Logical Data Independence Harder to Achieve than Physical?</a></li>
+      <li><a href="#key-takeaways">Key Takeaways from the University Case</a></li>
+      <li><a href="#conclusion">Conclusion</a></li>
+      <li><a href="#future-scope">Future Scope</a></li>
+    </ol>
+  </nav>
+
+  <h2 id="introduction">Introduction</h2>
+  <p>In modern university IT ecosystems, databases power mission-critical operations such as student enrollment, grading systems, course scheduling, and alumni tracking. As data volume grows and institutional requirements change, the underlying database must evolve.</p>
+  <p>However, modifying a database system introduces a recurring engineering bottleneck: how can database administrators optimize storage or extend business models without breaking client-side enterprise applications?</p>
+  <p>The <b>ANSI-SPARC Three-Schema Architecture</b> solves this problem by enforcing <b>Data Independence</b>. This technical blog analyzes a real-world university database scenario, evaluating how physical and logical changes propagate through the database layers and determine application stability.</p>
+
+  <figure>
+    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEgdrwcPc9uOKCgBO6AreAS_BfD5p74Beny15Q1sh85YS1AW8sXn8kG1ivM-jYOMEvzvhrMHm73e7rw1fJAhbumD415sfdtY956mRbkXyxp9dkwaiooGfDQSxG7K2-CPfEKld1YgQW3hQiIx5xQjpWVuMF1qXQyYZlg3AAMNnNF5rvuQSXfaTYFUinxaRkQ=w723-h399" alt="Three Schema Architecture">
+    <figcaption>Three Schema Architecture</figcaption>
+  </figure>
+
+  <h2 id="what-is-data-independence">What is Data Independence?</h2>
+  <p>In database management systems, <b>Data Independence</b> is the ability to modify the schema at one level of the database architecture without altering the schema at the next higher level. Traditionally, before the ANSI-SPARC model, application code was tightly bound to the exact physical layout of files on disk. If a disk format changed, developers had to rewrite parts of the application.</p>
+  <p>Data independence decouples these systems into three distinct layers:</p>
+
+  <ul class="three-level">
+    <li class="internal"><b>Internal (Physical) Level:</b> Deals with how data is stored, indexed, and compressed on hardware blocks.</li>
+    <li class="conceptual"><b>Conceptual (Logical) Level:</b> Represents the global blueprint—entities, attributes, relationships, and constraints.</li>
+    <li class="external"><b>External (View) Level:</b> Represents customized perspectives of the data for specific user groups or applications.</li>
+  </ul>
+
+  <p>There are two forms of data independence:</p>
+
+  <div class="level-grid">
+    <div class="level-card internal"><b>Physical Data Independence</b>The capacity to change the internal schema (e.g., swapping storage media, rebuilding B-trees, or re-clustering files) without altering the conceptual schema.</div>
+    <div class="level-card conceptual"><b>Logical Data Independence</b>The capacity to change the conceptual schema (e.g., adding new entities or expanding attributes) without altering the external schemas or breaking existing application programs.</div>
+  </div>
+
+  <h3>Importance of Data Independence</h3>
+  <p>Enforcing data independence provides critical operational advantages in enterprise systems like university portals:</p>
+  <ul>
+    <li><b>Zero-Downtime Application Stability:</b> Developers can optimize database storage engines or introduce new database fields without rewriting, recompiling, or redeploying existing front-end software.</li>
+    <li><b>Performance Tuning Flexibility:</b> Database Administrators (DBAs) can add indexes, migrate to solid-state drives, or partition storage clusters purely to boost execution speeds without consulting application developers.</li>
+    <li><b>Simplified Schema Evolution:</b> As institutional needs expand (such as tracking thesis advisors or internship credits), the data model can grow organically without invalidating older client queries.</li>
+    <li><b>Reduced Maintenance Overhead &amp; Costs:</b> Eliminates the cycle where routine database upgrades force expensive regression tests across all external applications.</li>
+    <li><b>Granular Security and Access Control:</b> Different applications only see their authorized external views, keeping new, sensitive, or internal storage details hidden.</li>
+  </ul>
+
+  <div class="divider"><span></span></div>
+
+  <h2 id="problem-statement">Problem Statement &amp; Scenario Analysis</h2>
+  <p>Every college campus runs on databases—whether it is checking attendance, downloading hall tickets, or registering for semester courses. But as more students get admitted, the system starts lagging, and as the curriculum changes, the college needs to add new details to the records.</p>
+  <p><b>This brings up a common dilemma: how can our database team upgrade the backend or add new features without crashing the mobile app or student portal that everyone uses daily?</b></p>
+
+  <h3>The University Scenario</h3>
+  <p>Our college is planning two major database updates in phases:</p>
+
+  <div class="level-grid">
+    <div class="level-card internal"><b>Phase 1: Boosting Speed (Physical Level)</b>The university wants to speed up the database. They decide to change how files and records are physically stored on the hard drives (like adding indexes and reorganizing data files). However, there is a clear condition: existing student apps must continue working without any changes.</div>
+    <div class="level-card conceptual"><b>Phase 2: Adding New Academic Details (Conceptual Level)</b>Later on, the university decides to track extra academic details (like capstone projects, faculty guides, or research credits). This means changing the overall design and structure of the database tables.</div>
+  </div>
+
+  <h3>Objectives of This Study</h3>
+  <p>As computer engineering students studying DBMS, our task is to analyze these two changes using the Three-Schema Architecture:</p>
+  <ul>
+    <li>Identify which exact level of the database architecture is being touched in each phase.</li>
+    <li>Identify whether it represents Physical Data Independence or Logical Data Independence.</li>
+    <li>Check whether developers need to edit the frontend application code, or if the database handles it automatically.</li>
+  </ul>
+
+  <div class="divider"><span></span></div>
+
+  <h2 id="solution-analysis">Analyzing the Two Proposed Changes: The Solution</h2>
+  <p>To solve our university activity completely, we break down each proposed change step-by-step using the Three-Schema Architecture framework.</p>
+
+  <div class="analysis-card internal">
+    <h3>Detailed Analysis of Change 1: Modifying Physical Storage Structure</h3>
+
+    <h4>1. Level Affected: Internal Level (Physical Schema)</h4>
+    <ul>
+      <li>The internal level controls how the database actually interacts with hardware—how records are packed into disk blocks, how files are structured, and what access paths (like B+ Tree indexes or hashing) exist.</li>
+      <li>When the university alters file layouts to speed up queries, they are solely tweaking this lowest tier.</li>
+    </ul>
+
+    <h4>2. Data Independence: Physical Data Independence</h4>
+    <ul>
+      <li>Physical Data Independence is the capacity to change the internal schema without having to modify the conceptual schema.</li>
+      <li>Because the conceptual schema stays intact, the layer above it remains completely unaware of physical hardware reorganizations.</li>
+    </ul>
+
+    <h4>3. Justification on Application Modification: No Modification Required</h4>
+    <ul>
+      <li><b>Why apps don't break:</b> Student portals interact with tables and attributes defined at the conceptual and external levels, not disk sectors.</li>
+      <li>The internal-to-conceptual mapping maintained by the DBMS absorbs these physical changes. A query like <code>SELECT * FROM Students WHERE department = 'IT'</code> returns the exact same result—just faster.</li>
+    </ul>
+  </div>
+
+  <div class="analysis-card conceptual">
+    <h3>Detailed Analysis of Change 2: Reorganizing Conceptual Structure</h3>
+
+    <h4>1. Level Affected: Conceptual Level (Logical Schema)</h4>
+    <ul>
+      <li>The conceptual schema defines the global community view of the entire database—its entities (e.g., <code>Students</code>, <code>Courses</code>), their attributes, data types, and primary/foreign key relationships.</li>
+      <li>Adding new academic data (such as capstone research milestones, advisor links, or credit categories) expands this logical blueprint.</li>
+    </ul>
+
+    <h4>2. Data Independence: Logical Data Independence</h4>
+    <ul>
+      <li>Logical Data Independence is the capacity to modify the conceptual schema without needing to rewrite external schemas (views) or existing application programs.</li>
+      <li>It protects legacy applications when tables are expanded or split into normalized forms.</li>
+    </ul>
+
+    <h4>3. Justification on Application Modification: Existing Apps Do Not Need Changes</h4>
+    <ul>
+      <li><b>Existing Apps (Unchanged):</b> The university uses the conceptual-to-external mapping (Database Views). Existing applications that only display attendance or marks continue reading from their defined view of the student table. Because new academic columns do not alter or delete existing columns, legacy applications continue functioning as normal.</li>
+      <li><b>New Apps (Require Updates):</b> Only newly created features that explicitly want to display or edit the newly added academic details will need updated queries and user interfaces.</li>
+    </ul>
+  </div>
+
+  <h2 id="why-harder">Why is Logical Data Independence Harder to Achieve than Physical?</h2>
+  <p>A common question in DBMS is why one is harder than the other:</p>
+  <ul>
+    <li><b>Physical changes are invisible to users:</b> When a database administrator adds an index or switches storage to faster drives, the logical names of tables and columns remain untouched. The conceptual schema doesn't change, so nothing above it notices.</li>
+    <li><b>Logical changes alter business definitions:</b> When tables are added, split, or modified, they directly impact how data is structured. If an application relies on a table that gets broken up during normalization, the database must rely on carefully written views to keep that application from failing. Because real-world applications read and write data based on this layer, maintaining complete independence at the logical level is far more challenging.</li>
+  </ul>
+
+  <figure>
+    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEh7KUdscF8C1m045QgRwSTfXW8Zpn142AExIM5WxfqGNmfZhAOKk-GQEWgbCf8hLszONUo_Es0JUTcQxsXmeTcE-juHTA62g4_mCsyMfEmwUQwLZDuPaJXoQ-Uli2b0cOtVEGiUIXJ4ra_uupbI6czLOLakahyfA-5NDgZniUnrA2K0A7mm-737RI3-pA0=w745-h517" alt="Physical vs Logical Data Independence Comparison">
+    <figcaption>Physical vs Logical Data Independence Comparison</figcaption>
+  </figure>
+
+  <h2 id="key-takeaways">Key Takeaways from the University Case</h2>
+  <p>From this case study, we can take away three key insights:</p>
+  <ul>
+    <li class="takeaway"><b>Separation of Concerns:</b> By dividing the database into three separate layers, database administrators can tune speed and storage without troubling frontend software engineers.</li>
+    <li class="takeaway views"><b>The Role of Database Views:</b> Logical data independence works in practice because external views act as a protective barrier. Legacy applications query these views, leaving them safe even when base tables expand with new academic records.</li>
+    <li class="takeaway"><b>Cost and Effort Savings:</b> Without data independence, even minor database updates would require testing, rewriting, and redeploying every connected student portal and mobile app.</li>
+  </ul>
+
+  <div class="divider"><span></span></div>
+
+  <h2 id="conclusion">Conclusion</h2>
+  <p>Understanding data independence is essential for designing resilient database systems. In our university scenario:</p>
+
+  <div class="outcome-grid">
+    <div class="outcome-card internal"><b>Modifying physical storage</b> demonstrated <b>Physical Data Independence</b> at the <b>Internal Level</b>, optimizing performance with zero impact on student applications.</div>
+    <div class="outcome-card conceptual"><b>Adding new academic information</b> demonstrated <b>Logical Data Independence</b> at the <b>Conceptual Level</b>, allowing the university's academic model to expand while keeping existing student tools functional through views.</div>
+  </div>
+
+  <p>The ANSI-SPARC Three-Schema Architecture ensures that databases can adapt to performance demands and evolving institutional requirements without constant downtime or software redesigns.</p>
+
+  <h2 id="future-scope">Future Scope</h2>
+  <p>In modern enterprise and campus environments, data independence can be expanded further through:</p>
+  <ul>
+    <li><b>Cloud &amp; Distributed Storage Migration:</b> Moving physical storage from local university servers to cloud platforms (like AWS or Azure) without changing any student queries.</li>
+    <li><b>Automated Migration Tools:</b> Using tools like Liquibase or Flyway to track and apply conceptual schema updates automatically during semester breaks.</li>
+    <li><b>Microservices &amp; API Gateways:</b> Adding API abstraction layers on top of external views so that web, iOS, and Android applications communicate seamlessly, regardless of underlying database upgrades.</li>
+  </ul>
 
 </article>
 </body>
