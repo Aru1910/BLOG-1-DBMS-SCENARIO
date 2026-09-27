@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Data Independence in University Database Systems</title>
+<title>Data Independence in University Database Systems & Choosing the Right Data Model</title>
 <style>
   :root{
     --paper:#f8f7f3;
@@ -201,6 +201,12 @@
   .outcome-card.internal{border-top:3px solid var(--internal);}
   .outcome-card.conceptual{border-top:3px solid var(--conceptual);}
 
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 24px 0; background: #fff; border: 1px solid var(--hairline); border-radius: 8px; overflow: hidden; }
+  th, td { padding: 14px 18px; text-align: left; font-family: 'Palatino Linotype', Palatino, Georgia, serif; font-size: 16px; border-bottom: 1px solid var(--hairline); }
+  th { background: var(--conceptual-tint); color: var(--conceptual); font-family: Georgia, serif; font-weight: 700; }
+  tr:last-child td { border-bottom: none; }
+
   a{color:var(--conceptual);}
   *:focus-visible{outline:2px solid var(--conceptual); outline-offset:2px;}
 
@@ -219,12 +225,12 @@
 <body>
 <article class="db-article">
 
-  <!-- Authors & Scenario Block Added Here -->
+  <!-- Authors & Scenario Block -->
   <div style="margin-bottom: 48px;">
     <p style="font-family: Georgia, serif; font-size: 16px; color: var(--ink-muted); margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--hairline);">
-      <b>Authors:</b> Armaan Palan, Om Pandey, Dipanshu Pandey
+      <b>Authors:</b> Armaan Palan, Om Pandey, Dipanshu Pandey, Manav Pal, Kavit Pallicha, Viraj Pamale
     </p>
-    <div style="background: #fff; border: 1px solid var(--hairline); border-left: 4px solid var(--conceptual); padding: 24px; border-radius: 8px;">
+    <div style="background: #fff; border: 1px solid var(--hairline); border-left: 4px solid var(--conceptual); padding: 24px; border-radius: 8px; margin-bottom: 24px;">
       <h4 style="margin-top: 0; color: var(--conceptual); font-size: 18px; margin-bottom: 16px;">Activity Scenario</h4>
       <p style="font-size: 16px; margin-bottom: 16px; line-height: 1.6;"><b>Scenario:</b> A university plans to improve database performance by changing its physical storage structure and file organization. The university wants existing student applications to continue functioning without modification. Later, the university plans to reorganize the conceptual structure of the database to introduce additional academic information.</p>
       <p style="font-size: 16px; margin-bottom: 0; line-height: 1.6;"><b>Question:</b> Analyze the two proposed changes and determine which level of the Three-Schema Architecture is affected in each case. Identify the type of data independence involved and justify whether application programs need modification.</p>
@@ -246,6 +252,7 @@
       <li><a href="#problem-statement">Problem Statement &amp; Scenario Analysis</a></li>
       <li><a href="#solution-analysis">Analyzing the Two Proposed Changes: The Solution</a></li>
       <li><a href="#why-harder">Why is Logical Data Independence Harder to Achieve than Physical?</a></li>
+      <li><a href="#data-models-guide">Choosing the Right Data Model Across Systems</a></li>
       <li><a href="#key-takeaways">Key Takeaways from the University Case</a></li>
       <li><a href="#conclusion">Conclusion</a></li>
       <li><a href="#future-scope">Future Scope</a></li>
@@ -372,6 +379,58 @@
     <figcaption>Physical vs Logical Data Independence Comparison</figcaption>
   </figure>
 
+  <!-- Added Section from URL -->
+  <h2 id="data-models-guide">Choosing the Right Data Model Across Systems</h2>
+  <p>Beyond managing architectural layers, complex systems require selecting the precise data model matching their operational characteristics. Across diverse application domains—such as banking, university portals, and organizational trees—model selection dictates performance and long-term maintainability.</p>
+  
+  <h3>1. Banking System</h3>
+  <figure>
+    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiqbVA-rUdLFEeGQKYsTD9tbzJUTdYe99HL6CMt4IRRUbWble1TU9fgglDnTCBBftOcPzkulZORhYj1lpPWC4Hap0EZFFgjZ1EGQufKhaiTM8lfXcWjvpQqjmEgveD7oKYBb_L2WVfffq5_4kZtYuRBvnle8dOav7a3JYOyHoKWxJU5qlholck5gRsYDS3D=w454-h334" alt="Banking System Structural View">
+    <figcaption>Figure 1: Structural view of the banking system.</figcaption>
+  </figure>
+  <p><b>Characteristics &amp; Fit:</b> Financial architectures demand strict ACID consistency, referential integrity across accounts and branches, and absolute auditability. The <b>Relational Model</b> provides the necessary schema enforcement, multi-row transaction guarantees, and structured rigor.</p>
+
+  <h3>2. University Management System</h3>
+  <figure>
+    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEi2WP-NJVfSENCX25dsOevxziwobiSQ97_0FmoRsTIo5-nHELvqIOVrWr8Jk77F2ll-Xcy4z0qgqYKJV9RLoEi48hZ8tCGUWYXniGk-W5thKpBtfHgrclivbbF2uRy5RI7i5Rgrvfu88UtrtGMQ03f3GGVyS1Y8fOGOGlJVI6HEOhjQcMo4R2YF_ZRHityE=w384-h333" alt="University Management System Structural View">
+    <figcaption>Figure 2: Structural view of the university management system.</figcaption>
+  </figure>
+  <p><b>Characteristics &amp; Fit:</b> Managing students, instructors, and junction-table enrollments requires robust many-to-many relationship handling and complex aggregation reporting (like GPA calculations and degree audits), making the relational approach ideal.</p>
+
+  <h3>3. Organizational Hierarchy</h3>
+  <figure>
+    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEg17xvpoiOZt9Doy8VzTLBvhiHp6dKXnGbz2YehsRLKePl6u1zJJ6vGoQHfobuHnCumKjkZjZeCr6VIwSrpHBkxj0Sv1ESlw29pKtaEhW0DDrHVTcERe8d6ZMq4M6N1T-zQC4h2yJT6xsOPTW7TAtkQyIIkW7gSmq5x7L0J_WdSo13f62VxWmgX9j6lDIQ9=w391-h334" alt="Organizational Hierarchy Structural View">
+    <figcaption>Figure 3: Structural view of the organizational hierarchy.</figcaption>
+  </figure>
+  <p><b>Characteristics &amp; Fit:</b> With single-parent reporting structures (CEO down to employees) and top-down/bottom-up traversal patterns, the <b>Hierarchical Model</b> offers a direct, natural representation of tree-shaped enterprise reporting lines.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Application Domain</th>
+        <th>Recommended Model</th>
+        <th>Core Justification</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Banking System</td>
+        <td>Relational Model</td>
+        <td>Strict ACID compliance, referential constraints, and zero tolerance for inconsistent balances.</td>
+      </tr>
+      <tr>
+        <td>University Management</td>
+        <td>Relational Model</td>
+        <td>Clean junction tables for many-to-many course enrollments and robust reporting joins.</td>
+      </tr>
+      <tr>
+        <td>Organizational Hierarchy</td>
+        <td>Hierarchical Model</td>
+        <td>Natural tree-shaped representation of single-parent reporting lines and recursive traversals.</td>
+      </tr>
+    </tbody>
+  </table>
+
   <h2 id="key-takeaways">Key Takeaways from the University Case</h2>
   <p>From this case study, we can take away three key insights:</p>
   <ul>
@@ -383,17 +442,17 @@
   <div class="divider"><span></span></div>
 
   <h2 id="conclusion">Conclusion</h2>
-  <p>Understanding data independence is essential for designing resilient database systems. In our university scenario:</p>
+  <p>Understanding data independence and matching application domains to the correct data model is essential for designing resilient database systems. In our university and enterprise scenarios:</p>
 
   <div class="outcome-grid">
     <div class="outcome-card internal"><b>Modifying physical storage</b> demonstrated <b>Physical Data Independence</b> at the <b>Internal Level</b>, optimizing performance with zero impact on student applications.</div>
     <div class="outcome-card conceptual"><b>Adding new academic information</b> demonstrated <b>Logical Data Independence</b> at the <b>Conceptual Level</b>, allowing the university's academic model to expand while keeping existing student tools functional through views.</div>
   </div>
 
-  <p>The ANSI-SPARC Three-Schema Architecture ensures that databases can adapt to performance demands and evolving institutional requirements without constant downtime or software redesigns.</p>
+  <p>The ANSI-SPARC Three-Schema Architecture and proper data model selection ensure that databases can adapt to performance demands, structural constraints, and evolving institutional requirements without constant downtime or software redesigns.</p>
 
   <h2 id="future-scope">Future Scope</h2>
-  <p>In modern enterprise and campus environments, data independence can be expanded further through:</p>
+  <p>In modern enterprise and campus environments, database engineering can be expanded further through:</p>
   <ul>
     <li><b>Cloud &amp; Distributed Storage Migration:</b> Moving physical storage from local university servers to cloud platforms (like AWS or Azure) without changing any student queries.</li>
     <li><b>Automated Migration Tools:</b> Using tools like Liquibase or Flyway to track and apply conceptual schema updates automatically during semester breaks.</li>
