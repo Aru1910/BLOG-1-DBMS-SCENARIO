@@ -1010,3 +1010,532 @@
 </article>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analyzing File System Limitations in a College Environment</title>
+<style>
+  :root{
+    --paper:#f8f7f3;
+    --grid-line:rgba(46,76,138,0.045);
+    --ink:#1b2030;
+    --ink-muted:#5a6070;
+    --internal:#5c6570;
+    --internal-tint:#edeeec;
+    --conceptual:#2e4c8a;
+    --conceptual-tint:#e8ecf6;
+    --external:#147d74;
+    --external-tint:#e3f2f0;
+    --hairline:#dcd7ca;
+    --code-bg:#eeece5;
+    --code-ink:#33424e;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    background-color:var(--paper);
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size:34px 34px;
+    color:var(--ink);
+  }
+
+  .db-article{
+    max-width:720px;
+    margin:0 auto;
+    padding:56px 24px 100px;
+  }
+
+  p{
+    font-family:'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+    font-size:18px;
+    line-height:1.75;
+    color:var(--ink);
+    margin:0 0 22px;
+  }
+
+  h2{
+    font-family:Georgia, 'Times New Roman', serif;
+    font-size:30px;
+    line-height:1.25;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+    margin:64px 0 20px;
+    scroll-margin-top:24px;
+  }
+  .db-article > h2:first-of-type{margin-top:0;}
+
+  h3{
+    font-family:Georgia, 'Times New Roman', serif;
+    font-size:22px;
+    font-weight:700;
+    margin:40px 0 16px;
+    scroll-margin-top:24px;
+  }
+
+  h4{
+    font-family:Georgia, 'Times New Roman', serif;
+    font-size:16.5px;
+    font-weight:700;
+    margin:0 0 10px;
+  }
+
+  ul{ padding-left:0; margin:0 0 22px; list-style:none; }
+  li{
+    font-family:'Palatino Linotype', Palatino, Georgia, serif;
+    font-size:17px;
+    line-height:1.7;
+    color:var(--ink);
+    margin:0 0 12px;
+    padding-left:20px;
+    position:relative;
+  }
+  li::before{
+    content:"";
+    position:absolute; left:0; top:10px;
+    width:6px; height:6px;
+    background:var(--ink-muted);
+    border-radius:1px;
+  }
+
+  code{
+    font-family:'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size:0.87em;
+    background:var(--code-bg);
+    color:var(--code-ink);
+    padding:2px 7px;
+    border-radius:4px;
+  }
+
+  b{font-weight:700;}
+
+  /* Hero: Architecture Stack */
+  .layer-hero{
+    border:1px solid var(--hairline);
+    background:#fff;
+    border-radius:10px;
+    padding:28px 28px 24px;
+    margin-bottom:12px;
+  }
+  .layer-hero-title{
+    font-family:'SFMono-Regular', Consolas, monospace;
+    font-size:12px;
+    letter-spacing:0.04em;
+    color:var(--ink-muted);
+    margin:0 0 18px;
+    text-transform:uppercase;
+  }
+  .layer{
+    display:flex; align-items:center; gap:14px;
+    padding:13px 16px; border-radius:6px; margin-bottom:8px;
+    font-family:Georgia, serif; font-size:15px; font-weight:700;
+  }
+  .layer:last-child{margin-bottom:0;}
+  .layer-dot{width:10px;height:10px;border-radius:50%;flex:none;}
+  .layer.centralized{background:var(--conceptual-tint); color:var(--conceptual); width:100%;}
+  .layer.security{background:var(--external-tint); color:var(--external); width:92%; margin-left:4%;}
+  .layer.concurrency{background:var(--internal-tint); color:var(--internal); width:84%; margin-left:8%;}
+  .layer.isolated{background:rgba(46,76,138,0.08); color:var(--ink); width:76%; margin-left:12%;}
+  .layer.centralized .layer-dot{background:var(--conceptual);}
+  .layer.security .layer-dot{background:var(--external);}
+  .layer.concurrency .layer-dot{background:var(--internal);}
+  .layer.isolated .layer-dot{background:var(--ink);}
+
+  /* Contents */
+  .toc{
+    border:1px solid var(--hairline);
+    border-radius:10px;
+    padding:20px 26px;
+    margin:40px 0 8px;
+    background:rgba(255,255,255,0.55);
+  }
+  .toc-label{ font-family:Georgia, serif; font-weight:700; font-size:15px; margin:0 0 12px; }
+  .toc ol{ margin:0; padding-left:20px; columns:2; column-gap:28px; }
+  .toc li{ font-family:'Palatino Linotype', Palatino, Georgia, serif; font-size:14.5px; padding-left:0; margin-bottom:9px; break-inside:avoid; }
+  .toc li::before{display:none;}
+  .toc a{ color:var(--conceptual); text-decoration:none; border-bottom:1px solid transparent; }
+  .toc a:hover, .toc a:focus-visible{border-bottom-color:var(--conceptual);}
+
+  /* Figures */
+  figure{margin:32px 0;}
+  figure img{ display:block; width:100%; height:auto; border-radius:10px; border:1px solid var(--hairline); }
+  figcaption{
+    font-family:'SFMono-Regular', Consolas, monospace;
+    font-size:12.5px; color:var(--ink-muted);
+    text-align:center; margin-top:10px; letter-spacing:0.01em;
+  }
+
+  /* Dividers */
+  .divider{ display:flex; align-items:center; justify-content:center; margin:64px 0; }
+  .divider span{ width:5px;height:5px;border-radius:50%; background:var(--hairline); margin:0 6px; }
+  .divider::before, .divider::after{ content:""; flex:1; height:1px; background:var(--hairline); }
+
+  /* Comparison / Cards */
+  .level-grid{ display:flex; gap:16px; margin:0 0 22px; }
+  .level-card{ flex:1; border-left:3px solid var(--hairline); background:#fff; border-radius:0 8px 8px 0; padding:18px 20px; }
+  .level-card p, .level-card li{margin:0;}
+  .level-card.internal{border-left-color:var(--internal);}
+  .level-card.conceptual{border-left-color:var(--conceptual);}
+  .level-card.external{border-left-color:var(--external);}
+  .level-card b{ display:block; margin-bottom:6px; font-family:Georgia,serif; font-size:15.5px; }
+  .level-card.internal b{color:var(--internal);}
+  .level-card.conceptual b{color:var(--conceptual);}
+  .level-card.external b{color:var(--external);}
+
+  /* Analysis Cards */
+  .analysis-card{
+    background:#fff; border:1px solid var(--hairline);
+    border-left:4px solid var(--internal);
+    border-radius:0 10px 10px 0;
+    padding:14px 28px 12px; margin:24px 0 44px;
+  }
+  .analysis-card.conceptual{border-left-color:var(--conceptual);}
+  .analysis-card.external{border-left-color:var(--external);}
+  .analysis-card h3{margin-top:16px; color:var(--internal);}
+  .analysis-card.conceptual h3{color:var(--conceptual);}
+  .analysis-card.external h3{color:var(--external);}
+
+  /* Clean Tables */
+  .comparison-table-wrapper{
+    overflow-x:auto;
+    margin:20px 0 28px;
+    border:1px solid var(--hairline);
+    border-radius:8px;
+    background:#fff;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    text-align:left;
+    font-family:'Palatino Linotype', Palatino, Georgia, serif;
+    font-size:15px;
+  }
+  th{
+    background:var(--code-bg);
+    color:var(--ink);
+    padding:12px 16px;
+    font-family:Georgia, serif;
+    font-weight:700;
+    border-bottom:1px solid var(--hairline);
+  }
+  td{
+    padding:12px 16px;
+    border-bottom:1px solid var(--hairline);
+    vertical-align:top;
+    line-height:1.6;
+  }
+  tr:last-child td{border-bottom:none;}
+  td b{color:var(--ink);}
+
+  /* Outcome Grid */
+  .outcome-grid{display:flex; gap:16px; margin:0 0 24px; flex-wrap:wrap;}
+  .outcome-card{flex:1 1 calc(50% - 16px); background:#fff; border:1px solid var(--hairline); border-radius:8px; padding:18px 20px;}
+  .outcome-card::before{display:none;}
+  .outcome-card.redundancy{border-top:3px solid var(--internal);}
+  .outcome-card.concurrency{border-top:3px solid var(--conceptual);}
+  .outcome-card.integrity{border-top:3px solid var(--external);}
+  .outcome-card.recovery{border-top:3px solid var(--ink);}
+
+  a{color:var(--conceptual);}
+  *:focus-visible{outline:2px solid var(--conceptual); outline-offset:2px;}
+
+  @media (max-width:680px){
+    .db-article{padding:40px 18px 72px;}
+    h2{font-size:25px; margin-top:48px;}
+    h3{font-size:19px;}
+    p, li{font-size:16px;}
+    .level-grid{flex-direction:column;}
+    .outcome-grid{flex-direction:column;}
+    .outcome-card{flex:1 1 100%;}
+    .toc ol{columns:1;}
+    .layer.security{width:96%; margin-left:2%;}
+    .layer.concurrency{width:92%; margin-left:4%;}
+    .layer.isolated{width:88%; margin-left:6%;}
+  }
+</style>
+</head>
+<body>
+<article class="db-article">
+
+  <!-- Header & Context Block -->
+  <div style="margin-bottom: 48px;">
+    <p style="font-family: Georgia, serif; font-size: 16px; color: var(--ink-muted); margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--hairline);">
+      <b>Course Module:</b> SE IT B – Database Management System
+    </p>
+    <div style="background: #fff; border: 1px solid var(--hairline); border-left: 4px solid var(--conceptual); padding: 24px; border-radius: 8px;">
+      <h4 style="margin-top: 0; color: var(--conceptual); font-size: 18px; margin-bottom: 16px;">Case Study Overview</h4>
+      <p style="font-size: 16px; margin-bottom: 0; line-height: 1.6;">In an educational institution, multiple administrative departments maintain independent records across separate spreadsheet files. This case study evaluates the engineering limitations of file-based storage systems—including data redundancy, inconsistent states, concurrent modification conflicts, and data isolation—and demonstrates how transitioning to a centralized Database Management System (DBMS) resolves these architectural bottlenecks.</p>
+    </div>
+  </div>
+
+  <!-- Hero: Transition Stack -->
+  <div class="layer-hero">
+    <p class="layer-hero-title">File System to Centralized DBMS Transition</p>
+    <div class="layer centralized"><span class="layer-dot"></span>Centralized College Database (Single Source of Truth)</div>
+    <div class="layer security"><span class="layer-dot"></span>Role-Based Access Control &amp; Data Security</div>
+    <div class="layer concurrency"><span class="layer-dot"></span>Transaction Locks &amp; Concurrency Control</div>
+    <div class="layer isolated"><span class="layer-dot"></span>Traditional Isolated Files (Admissions, Exams, Fees, Library)</div>
+  </div>
+
+  <!-- Table of Contents -->
+  <nav class="toc" aria-label="Contents">
+    <p class="toc-label">Contents</p>
+    <ol>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#college-scenario">The College Scenario</a></li>
+      <li><a href="#data-redundancy">How Student Data Gets Repeated</a></li>
+      <li><a href="#main-problems">Key Vulnerabilities of File-Based Systems</a></li>
+      <li><a href="#case-department-change">Real-Life Example: Department Migration</a></li>
+      <li><a href="#concurrent-access">Concurrent Access &amp; Multi-User Conflicts</a></li>
+      <li><a href="#dbms-solution">How DBMS Solves These Problems</a></li>
+      <li><a href="#comparison">File-Based System vs DBMS</a></li>
+      <li><a href="#conclusion">Conclusion &amp; Migration Value</a></li>
+    </ol>
+  </nav>
+
+  <h2 id="introduction">Introduction</h2>
+  <p>In a university or college campus, student records are essential across diverse administrative branches—such as Admissions, Examination, Accounts/Fees, and the Library. Historically, each department operated in a silo, maintaining its own disconnected spreadsheets and local files.</p>
+  <p>While maintaining individual files might appear straightforward initially, duplicating identical student profiles across independent sheets quickly degrades operational integrity. Updates fail to synchronize, concurrent edits overwrite records silently, and cross-departmental reporting becomes labor-intensive.</p>
+  <p>A <b>Database Management System (DBMS)</b> solves these systemic weaknesses by establishing a centralized, ACID-compliant repository. This study analyzes the core limitations of collegiate file-based workflows and explores the structural advantages of migrating to a database system.</p>
+
+  <div class="divider"><span></span></div>
+
+  <!-- College Scenario -->
+  <h2 id="college-scenario">The College Scenario</h2>
+  <p>Consider a standard campus setup where four administrative departments operate independent data files:</p>
+  <ul>
+    <li><b>Admissions:</b> Enrolls candidates, archives entry credentials, and tracks assigned branches.</li>
+    <li><b>Examination:</b> Processes exam registrations, seat numbers, hall tickets, and semester grades.</li>
+    <li><b>Fees &amp; Accounts:</b> Manages payment installments, scholarships, receipts, and dues.</li>
+    <li><b>Library:</b> Tracks issued literature, accession registers, return dates, and late penalties.</li>
+  </ul>
+  <p>Each independent file stores duplicate baseline attributes for every registered student: <code>Student ID</code>, <code>Student Name</code>, <code>Roll Number</code>, and <code>Department</code>.</p>
+
+  <figure>
+    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEgVxeDyMafDmxrLy0ocnfQQSvS1obuIsQbOCi8mJ8lm6vfvmgjJohLvDVl8Tcx_W0ZVe1Im3DyRrR2PLEkhwUK6PnEM1YmLS6im5Y316uikZCWD66ZD1HvOnqdGnWq_A2n2l2NLp_n81Yc2GQs6mrbMFUgqdhw0ztfyrWfZ-9uDgoq769K0IdVqDA5EzCo" alt="Student information maintained across separate files">
+    <figcaption>Figure 1: Student information maintained across separate files</figcaption>
+  </figure>
+
+  <div class="divider"><span></span></div>
+
+  <!-- Data Redundancy Breakdown -->
+  <h2 id="data-redundancy">How Student Data Gets Repeated</h2>
+  <p>Suppose a candidate is enrolled in the institute with the following record profile:</p>
+  <ul>
+    <li><b>Student ID:</b> <code>SE B</code></li>
+    <li><b>Name:</b> <code>Anjali Pal</code></li>
+    <li><b>Roll No.:</b> <code>50</code></li>
+    <li><b>Department:</b> <code>Information Technology</code></li>
+  </ul>
+
+  <p>Under a file-based paradigm, identical student tuples must be manually keyed into each spreadsheet:</p>
+  <div class="level-grid">
+    <div class="level-card internal">
+      <b>Admissions.xlsx</b>
+      <code>SE B | Anjali Pal | 50 | IT</code>
+    </div>
+    <div class="level-card conceptual">
+      <b>Examination.xlsx</b>
+      <code>SE B | Anjali Pal | 50 | IT</code>
+    </div>
+  </div>
+  <div class="level-grid">
+    <div class="level-card external">
+      <b>Fees.xlsx</b>
+      <code>SE B | Anjali Pal | 50 | IT</code>
+    </div>
+    <div class="level-card internal">
+      <b>Library.xlsx</b>
+      <code>SE B | Anjali Pal | 50 | IT</code>
+    </div>
+  </div>
+
+  <p>Storing the exact same entity profile across four distinct locations is the textbook definition of <b>data redundancy</b>. This practice multiplies storage requirements, squanders administrative person-hours, and drastically increases the likelihood of human error.</p>
+
+  <div class="divider"><span></span></div>
+
+  <!-- Key Problems -->
+  <h2 id="main-problems">Key Vulnerabilities of File-Based Systems</h2>
+
+  <div class="analysis-card">
+    <h3>Architectural Vulnerabilities</h3>
+    
+    <h4>1. Data Redundancy</h4>
+    <p>Repeatedly capturing common student identities across departmental sheets results in storage bloat, excessive administrative overhead, and synchronization delays.</p>
+
+    <h4>2. Data Inconsistency</h4>
+    <p>Occurs when conflicting records describe the same individual. For example, if Admissions lists a student in <code>Computer Engineering</code> while Examination and Library records list <code>Information Technology</code>, the institute lacks a reliable single source of truth.</p>
+
+    <h4>3. Update Anomalies</h4>
+    <p>Modifying a student's basic record requires staff to locate and manually alter every departmental spreadsheet. If a single document is overlooked, persistent inconsistencies infect institutional records.</p>
+
+    <h4>4. Data Isolation &amp; Separation</h4>
+    <p>Because files are stored in proprietary workbook formats on separate computers, aggregating data across files (e.g., verifying whether students with unpaid fee dues have returned library books) requires complicated, error-prone manual reconciliation.</p>
+
+    <h4>5. Security &amp; Granular Access Deficits</h4>
+    <p>File systems typically offer only coarse, OS-level read/write permissions. It is virtually impossible to let library staff inspect basic student profiles while preventing them from viewing or altering sensitive tuition fees and academic grades.</p>
+
+    <h4>6. Backup &amp; Disaster Recovery Challenges</h4>
+    <p>Decentralized files stored on individual desktop hard drives lack standardized backup automation, transaction logging, or point-in-time recovery, leaving student records vulnerable to hardware failure or accidental deletion.</p>
+  </div>
+
+  <div class="divider"><span></span></div>
+
+  <!-- Real-Life Example -->
+  <h2 id="case-department-change">Real-Life Example: Department Migration</h2>
+  <p>Consider a practical student transfer scenario: a student named <b>Priya Sharma</b> applies for and receives approval to change her major from <b>Information Technology</b> to <b>Computer Engineering</b>.</p>
+
+  <div class="level-grid">
+    <div class="level-card conceptual">
+      <b>Admissions.xlsx (Updated)</b>
+      <code>Priya Sharma → Computer Engineering [✓]</code>
+      <p style="margin-top:6px; font-size:14px; color:var(--conceptual);">Admissions clerk immediately completes the departmental update form.</p>
+    </div>
+    <div class="level-card internal">
+      <b>Examination &amp; Library (Missed)</b>
+      <code>Examination → Information Technology [✗]</code><br>
+      <code>Library → Information Technology [✗]</code>
+      <p style="margin-top:6px; font-size:14px; color:var(--internal);">Other departments remain unaware of the transfer, keeping outdated branch tags.</p>
+    </div>
+  </div>
+
+  <p><b>Observation:</b> The college now holds contradictory records for a single student. Hall tickets generate for the incorrect engineering discipline, and library allocations reflect improper course curricula—highlighting how duplicated data directly leads to system inconsistency.</p>
+
+  <div class="divider"><span></span></div>
+
+  <!-- Concurrency -->
+  <h2 id="concurrent-access">Concurrent Access &amp; Multi-User Conflicts</h2>
+  <p>During peak administrative cycles, such as semester exam registration or fee deadlines, multiple staff members simultaneously access and modify student files.</p>
+
+  <figure>
+    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEjk0l-207u_tJI-x-oo51MsfnwY0Cc04mhLDUMXWE0eH0S7m6WNiXMe_fyOAnSZ83RhlC4JevQS-uG_rYAKo-7bGjAjQ12X43Q5dHBBY9dBRnCXWHU5Eb6A8DLc1LA_HKG3oT48-B9nP0PtH9RRj-HbGQMuskxyhwzfNiEwtrgBDXetDO6TCmzadbT7n4Q" alt="Concurrent access to student information">
+    <figcaption>Figure 2: Concurrent access to student information across multiple staff members</figcaption>
+  </figure>
+
+  <p>Without transaction isolation protocols, two staff members saving concurrent updates will encounter the classic <b>Lost Update problem</b>—where one clerk's save overwrites another clerk's modifications without notification. A DBMS resolves this conflict through locking protocols, isolation levels, and atomic ACID transactions.</p>
+
+  <div class="divider"><span></span></div>
+
+  <!-- How DBMS Solves It -->
+  <h2 id="dbms-solution">How DBMS Solves These Problems</h2>
+  <p>A <b>Database Management System</b> replaces unlinked, independent spreadsheets with an integrated, structured schema.</p>
+
+  <figure>
+    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEhaX2SQOhC4FhpWwYBX-KU-1RUaykrEuo28MPJr607KwOjHvMU_HHZVY_A82cqYlz54nnQuvq-v6gmBD27G5vrEjdhaGMYb2H0RoIMkYJqMvVdsw0FQN6l3zw9AAcv4u6K7caraJQ4BZYbxTXUoUBZ-aLTLTAH3tBuyIpz9UC_8_aKUHRIxFBb3IPgyoBo" alt="Centralized college database">
+    <figcaption>Figure 3: Centralized college database architecture</figcaption>
+  </figure>
+
+  <div class="analysis-card conceptual">
+    <h3>Core Architectural Benefits of DBMS</h3>
+    <ul>
+      <li><b>Controlled Redundancy:</b> Student identity is recorded once in a primary entity table; other tables link to it using foreign keys.</li>
+      <li><b>Guaranteed Consistency:</b> An update to a student's department cascades or updates the single authoritative record instantly across all administrative views.</li>
+      <li><b>Concurrency Control:</b> Two-Phase Locking (2PL) and transaction serialization prevent simultaneous writes from corrupting data.</li>
+      <li><b>Granular Role-Based Security:</b> Views and permission grants (e.g., <code>GRANT SELECT ON Students TO LibraryStaff;</code>) expose only necessary data.</li>
+      <li><b>Declarative Integrity Constraints:</b> Primary keys, unique keys, and check constraints block erroneous, orphaned, or incomplete records.</li>
+      <li><b>Automated Recovery &amp; Write-Ahead Logging:</b> Write-ahead logs (WAL) ensure transaction atomicity and durability in the event of system failures.</li>
+    </ul>
+  </div>
+
+  <div class="divider"><span></span></div>
+
+  <!-- Comparison Table -->
+  <h2 id="comparison">File-Based System vs DBMS</h2>
+  <p>The matrix below provides a point-by-point comparison between traditional file-based record-keeping and a modern relational database engine:</p>
+
+  <div class="comparison-table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>File-Based System</th>
+          <th>Database Management System (DBMS)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>Storage Architecture</b></td>
+          <td>Scattered across separate, decentralized spreadsheets</td>
+          <td>Unified, structured database with defined relational schemas</td>
+        </tr>
+        <tr>
+          <td><b>Data Redundancy</b></td>
+          <td>High; duplicate student data entered across multiple departments</td>
+          <td>Minimized; normalized entities linked through primary and foreign keys</td>
+        </tr>
+        <tr>
+          <td><b>Data Consistency</b></td>
+          <td>Prone to divergence when updates fail to propagate to every file</td>
+          <td>Strictly preserved through a single, shared authoritative source</td>
+        </tr>
+        <tr>
+          <td><b>Update Complexity</b></td>
+          <td>Requires manually modifying every file in every department</td>
+          <td>Single-statement SQL updates reflect across all departmental views</td>
+        </tr>
+        <tr>
+          <td><b>Security &amp; Privacy</b></td>
+          <td>Rudimentary; limited to broad OS-level file permissions</td>
+          <td>Granular, role-based access control (RBAC) at table and column levels</td>
+        </tr>
+        <tr>
+          <td><b>Multi-User Access</b></td>
+          <td>Uncontrolled; risks lost updates, race conditions, and corrupted files</td>
+          <td>ACID transaction isolation and multi-version concurrency control (MVCC)</td>
+        </tr>
+        <tr>
+          <td><b>Cross-Domain Queries</b></td>
+          <td>Labor-intensive; requires manually matching spreadsheets</td>
+          <td>Instant, efficient queries using relational <code>JOIN</code> and filters</td>
+        </tr>
+        <tr>
+          <td><b>Integrity Constraints</b></td>
+          <td>Enforced purely through manual human validation</td>
+          <td>Enforced by database rules (Primary Key, Foreign Key, Check, Not Null)</td>
+        </tr>
+        <tr>
+          <td><b>Backup &amp; Recovery</b></td>
+          <td>Scattered, ad-hoc, and vulnerable to disk failures</td>
+          <td>Automated scheduled backups, point-in-time recovery, and transaction logs</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="divider"><span></span></div>
+
+  <!-- Conclusion -->
+  <h2 id="conclusion">Conclusion &amp; Migration Value</h2>
+  <p>While maintaining separate spreadsheets offers low initial complexity, it quickly introduces severe operational bottlenecks in growing institutions.</p>
+
+  <div class="outcome-grid">
+    <div class="outcome-card redundancy">
+      <b>Eliminating Redundancy</b>
+      <p style="margin:8px 0 0; font-size:15px; line-height:1.6;">Normalizing student profiles removes repetitive data entry, reducing human clerical error and freeing administrative bandwidth.</p>
+    </div>
+    <div class="outcome-card concurrency">
+      <b>Concurrency Protection</b>
+      <p style="margin:8px 0 0; font-size:15px; line-height:1.6;">Transaction management prevents multi-user write conflicts during high-traffic registration and examination deadlines.</p>
+    </div>
+    <div class="outcome-card integrity">
+      <b>Institutional Integrity</b>
+      <p style="margin:8px 0 0; font-size:15px; line-height:1.6;">Foreign key relationships ensure that marks, tuition fee balances, and library loans are linked exclusively to verified student profiles.</p>
+    </div>
+    <div class="outcome-card recovery">
+      <b>Disaster Resilience</b>
+      <p style="margin:8px 0 0; font-size:15px; line-height:1.6;">Centralized logging and automated snapshots guarantee that institutional records can be restored quickly and accurately after system failures.</p>
+    </div>
+  </div>
+
+  <p>Migrating collegiate administrative operations from isolated flat files to an integrated DBMS guarantees data integrity, reinforces privacy compliance, and establishes a scalable foundation for modern student web portals and mobile applications.</p>
+
+</article>
+</body>
+</html>
