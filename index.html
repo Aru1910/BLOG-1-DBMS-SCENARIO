@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Data Independence in University Database Systems & Choosing the Right Data Model</title>
+<title>DBMS Technical Analysis: Architecture, Models, and File System Limitations</title>
 <style>
   :root{
     --paper:#f8f7f3;
@@ -253,6 +253,7 @@
       <li><a href="#solution-analysis">Analyzing the Two Proposed Changes: The Solution</a></li>
       <li><a href="#why-harder">Why is Logical Data Independence Harder to Achieve than Physical?</a></li>
       <li><a href="#data-models-guide">Choosing the Right Data Model Across Systems</a></li>
+      <li><a href="#file-system-limitations">Analyzing File System Limitations in University Systems</a></li>
       <li><a href="#key-takeaways">Key Takeaways from the University Case</a></li>
       <li><a href="#conclusion">Conclusion</a></li>
       <li><a href="#future-scope">Future Scope</a></li>
@@ -379,7 +380,7 @@
     <figcaption>Physical vs Logical Data Independence Comparison</figcaption>
   </figure>
 
-  <!-- Added Section from URL -->
+  <!-- Data Models Guide Section -->
   <h2 id="data-models-guide">Choosing the Right Data Model Across Systems</h2>
   <p>Beyond managing architectural layers, complex systems require selecting the precise data model matching their operational characteristics. Across diverse application domains—such as banking, university portals, and organizational trees—model selection dictates performance and long-term maintainability.</p>
   
@@ -431,6 +432,60 @@
     </tbody>
   </table>
 
+  <div class="divider"><span></span></div>
+
+  <!-- File System Limitations Section -->
+  <h2 id="file-system-limitations">Analyzing File System Limitations in University Systems</h2>
+  <p>Before DBMS became the standard backbone for enterprise data, organizations relied directly on traditional operating system file processing systems (e.g., flat files, CSVs, spreadsheets). When evaluated against the scale and complexity of modern academic administration, file-based systems exhibit foundational failure points.</p>
+
+  <h3>Core Engineering Pitfalls of File Systems</h3>
+  <ul>
+    <li><b>Data Redundancy &amp; Inconsistency:</b> In file-based storage, different campus departments (Accounts, Library, Exams) keep separate copies of student records. When a student updates their address or phone number in one department file, other departments maintain stale data, causing severe anomalies.</li>
+    <li><b>Lack of Data Independence:</b> Application programs in file systems are hardcoded to the exact file layout, byte offsets, and delimiters. Adding a single field (such as an Aadhaar number or ABC ID) requires modifying and recompiling every script and program reading that file.</li>
+    <li><b>Difficulty in Accessing Data (Ad-hoc Querying):</b> Extracting custom reports (e.g., "list all SE IT students with attendance below 75% who have not cleared library dues") requires writing dedicated custom scripts in C/Python rather than executing a high-level declarative SQL statement.</li>
+    <li><b>Concurrency &amp; Integrity Issues:</b> Traditional file systems lack fine-grained row-level locking. If two students attempt to register for the final seat in an elective course simultaneously, race conditions lead to lost updates or overbooking.</li>
+    <li><b>Security &amp; Atomicity Failures:</b> Operating system file permissions only provide coarse file-level read/write privileges, failing to mask sensitive attributes like grades or fee balances from general administrative staff. Furthermore, if a crash occurs mid-update, half-written files corrupt the system without automatic rollback.</li>
+  </ul>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Feature / Criterion</th>
+        <th>File-Based System</th>
+        <th>Database Management System (DBMS)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>Data Independence</b></td>
+        <td>Tight coupling; program code depends on disk formats.</td>
+        <td>High; 3-schema architecture isolates physical and logical layers.</td>
+      </tr>
+      <tr>
+        <td><b>Redundancy &amp; Consistency</b></td>
+        <td>Multiple isolated copies lead to rampant inconsistency.</td>
+        <td>Centralized repository with constraints and normalization.</td>
+      </tr>
+      <tr>
+        <td><b>Concurrent Access</b></td>
+        <td>Crude file locks cause contention or data corruption.</td>
+        <td>Granular transaction management (ACID, multi-version locking).</td>
+      </tr>
+      <tr>
+        <td><b>Query Capabilities</b></td>
+        <td>Requires writing bespoke procedural programs.</td>
+        <td>Declarative querying using standardized SQL engines.</td>
+      </tr>
+      <tr>
+        <td><b>Security &amp; Views</b></td>
+        <td>Coarse-grained OS level read/write permissions.</td>
+        <td>Role-based external views, column/row-level security.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="divider"><span></span></div>
+
   <h2 id="key-takeaways">Key Takeaways from the University Case</h2>
   <p>From this case study, we can take away three key insights:</p>
   <ul>
@@ -442,7 +497,7 @@
   <div class="divider"><span></span></div>
 
   <h2 id="conclusion">Conclusion</h2>
-  <p>Understanding data independence and matching application domains to the correct data model is essential for designing resilient database systems. In our university and enterprise scenarios:</p>
+  <p>Understanding data independence, avoiding legacy file system pitfalls, and matching application domains to the correct data model is essential for designing resilient database systems. In our university and enterprise scenarios:</p>
 
   <div class="outcome-grid">
     <div class="outcome-card internal"><b>Modifying physical storage</b> demonstrated <b>Physical Data Independence</b> at the <b>Internal Level</b>, optimizing performance with zero impact on student applications.</div>
