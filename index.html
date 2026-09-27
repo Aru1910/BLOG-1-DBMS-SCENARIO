@@ -222,7 +222,7 @@
   <!-- Authors & Scenario Block Added Here -->
   <div style="margin-bottom: 48px;">
     <p style="font-family: Georgia, serif; font-size: 16px; color: var(--ink-muted); margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--hairline);">
-      <b>Authors:</b> Armaan Palan, Om Pandey, Dipanshu Pandey
+      <b>Authors:</b> Armaan Palan(Roll No. 52), Om Pandey(Roll No. 60), Dipanshu Pandey(Roll No. 58)
     </p>
     <div style="background: #fff; border: 1px solid var(--hairline); border-left: 4px solid var(--conceptual); padding: 24px; border-radius: 8px;">
       <h4 style="margin-top: 0; color: var(--conceptual); font-size: 18px; margin-bottom: 16px;">Activity Scenario</h4>
@@ -1267,7 +1267,8 @@
   <!-- Header & Context Block -->
   <div style="margin-bottom: 48px;">
     <p style="font-family: Georgia, serif; font-size: 16px; color: var(--ink-muted); margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--hairline);">
-      <b>Course Module:</b> SE IT B – Database Management System
+      <b>Course Module:</b> SE IT B – Database Management System <br>
+      <b>Authors:</b> Ayush Pandey(Roll No. 57), Anjali Pal(Roll No. 50), Janhvi Pandey(Roll No. 59)
     </p>
     <div style="background: #fff; border: 1px solid var(--hairline); border-left: 4px solid var(--conceptual); padding: 24px; border-radius: 8px;">
       <h4 style="margin-top: 0; color: var(--conceptual); font-size: 18px; margin-bottom: 16px;">Case Study Overview</h4>
@@ -1535,6 +1536,663 @@
   </div>
 
   <p>Migrating collegiate administrative operations from isolated flat files to an integrated DBMS guarantees data integrity, reinforces privacy compliance, and establishes a scalable foundation for modern student web portals and mobile applications.</p>
+
+</article>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Designing a Three-Schema Architecture for a University Database</title>
+<style>
+  :root{
+    --paper:#f8f7f3;
+    --grid-line:rgba(46,76,138,0.045);
+    --ink:#1b2030;
+    --ink-muted:#5a6070;
+    --internal:#5c6570;
+    --internal-tint:#edeeec;
+    --conceptual:#2e4c8a;
+    --conceptual-tint:#e8ecf6;
+    --external:#147d74;
+    --external-tint:#e3f2f0;
+    --hairline:#dcd7ca;
+    --code-bg:#eeece5;
+    --code-ink:#33424e;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    background-color:var(--paper);
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size:34px 34px;
+    color:var(--ink);
+  }
+
+  .db-article{
+    max-width:720px;
+    margin:0 auto;
+    padding:56px 24px 100px;
+  }
+
+  p{
+    font-family:'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+    font-size:18px;
+    line-height:1.75;
+    color:var(--ink);
+    margin:0 0 22px;
+  }
+
+  h2{
+    font-family:Georgia, 'Times New Roman', serif;
+    font-size:30px;
+    line-height:1.25;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+    margin:64px 0 20px;
+    scroll-margin-top:24px;
+  }
+  .db-article > h2:first-of-type{margin-top:0;}
+
+  h3{
+    font-family:Georgia, 'Times New Roman', serif;
+    font-size:22px;
+    font-weight:700;
+    margin:40px 0 16px;
+    scroll-margin-top:24px;
+  }
+
+  h4{
+    font-family:Georgia, 'Times New Roman', serif;
+    font-size:16.5px;
+    font-weight:700;
+    margin:0 0 10px;
+  }
+
+  ul, ol{ padding-left:0; margin:0 0 22px; list-style:none; }
+  li{
+    font-family:'Palatino Linotype', Palatino, Georgia, serif;
+    font-size:17px;
+    line-height:1.7;
+    color:var(--ink);
+    margin:0 0 12px;
+    padding-left:20px;
+    position:relative;
+  }
+  li::before{
+    content:"";
+    position:absolute; left:0; top:10px;
+    width:6px; height:6px;
+    background:var(--ink-muted);
+    border-radius:1px;
+  }
+
+  code{
+    font-family:'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size:0.87em;
+    background:var(--code-bg);
+    color:var(--code-ink);
+    padding:2px 7px;
+    border-radius:4px;
+  }
+
+  b, strong{font-weight:700;}
+
+  /* Hero: Layer Stack */
+  .layer-hero{
+    border:1px solid var(--hairline);
+    background:#fff;
+    border-radius:10px;
+    padding:28px 28px 24px;
+    margin-bottom:12px;
+  }
+  .layer-hero-title{
+    font-family:'SFMono-Regular', Consolas, monospace;
+    font-size:12px;
+    letter-spacing:0.04em;
+    color:var(--ink-muted);
+    margin:0 0 18px;
+    text-transform:uppercase;
+  }
+  .layer{
+    display:flex; align-items:center; gap:14px;
+    padding:13px 16px; border-radius:6px; margin-bottom:8px;
+    font-family:Georgia, serif; font-size:15px; font-weight:700;
+  }
+  .layer:last-child{margin-bottom:0;}
+  .layer-dot{width:10px;height:10px;border-radius:50%;flex:none;}
+  .layer.external{background:var(--external-tint); color:var(--external); width:100%;}
+  .layer.conceptual{background:var(--conceptual-tint); color:var(--conceptual); width:88%; margin-left:6%;}
+  .layer.internal{background:var(--internal-tint); color:var(--internal); width:76%; margin-left:12%;}
+  .layer.external .layer-dot{background:var(--external);}
+  .layer.conceptual .layer-dot{background:var(--conceptual);}
+  .layer.internal .layer-dot{background:var(--internal);}
+
+  /* Contents */
+  .toc{
+    border:1px solid var(--hairline);
+    border-radius:10px;
+    padding:20px 26px;
+    margin:40px 0 8px;
+    background:rgba(255,255,255,0.55);
+  }
+  .toc-label{ font-family:Georgia, serif; font-weight:700; font-size:15px; margin:0 0 12px; }
+  .toc ol{ margin:0; padding-left:20px; columns:2; column-gap:28px; }
+  .toc li{ font-family:'Palatino Linotype', Palatino, Georgia, serif; font-size:14.5px; padding-left:0; margin-bottom:9px; break-inside:avoid; }
+  .toc li::before{display:none;}
+  .toc a{ color:var(--conceptual); text-decoration:none; border-bottom:1px solid transparent; }
+  .toc a:hover, .toc a:focus-visible{border-bottom-color:var(--conceptual);}
+
+  /* Figures & Captions */
+  figure{margin:32px 0;}
+  figure img{ display:block; width:100%; height:auto; border-radius:10px; border:1px solid var(--hairline); }
+  figcaption{
+    font-family:'SFMono-Regular', Consolas, monospace;
+    font-size:12.5px; color:var(--ink-muted);
+    text-align:center; margin-top:10px; letter-spacing:0.01em;
+  }
+
+  /* Dividers */
+  .divider{ display:flex; align-items:center; justify-content:center; margin:64px 0; }
+  .divider span{ width:5px;height:5px;border-radius:50%; background:var(--hairline); margin:0 6px; }
+  .divider::before, .divider::after{ content:""; flex:1; height:1px; background:var(--hairline); }
+
+  /* Comparison / Cards */
+  .level-grid{ display:flex; gap:16px; margin:0 0 22px; }
+  .level-card{ flex:1; border-left:3px solid var(--hairline); background:#fff; border-radius:0 8px 8px 0; padding:18px 20px; }
+  .level-card p, .level-card li{margin:0;}
+  .level-card.internal{border-left-color:var(--internal);}
+  .level-card.conceptual{border-left-color:var(--conceptual);}
+  .level-card.external{border-left-color:var(--external);}
+  .level-card b{ display:block; margin-bottom:6px; font-family:Georgia,serif; font-size:15.5px; }
+  .level-card.internal b{color:var(--internal);}
+  .level-card.conceptual b{color:var(--conceptual);}
+  .level-card.external b{color:var(--external);}
+
+  /* Analysis Cards */
+  .analysis-card{
+    background:#fff; border:1px solid var(--hairline);
+    border-left:4px solid var(--internal);
+    border-radius:0 10px 10px 0;
+    padding:14px 28px 12px; margin:24px 0 44px;
+  }
+  .analysis-card.conceptual{border-left-color:var(--conceptual);}
+  .analysis-card.external{border-left-color:var(--external);}
+  .analysis-card h3{margin-top:16px; color:var(--internal);}
+  .analysis-card.conceptual h3{color:var(--conceptual);}
+  .analysis-card.external h3{color:var(--external);}
+
+  /* Clean Tables */
+  .comparison-table-wrapper{
+    overflow-x:auto;
+    margin:20px 0 28px;
+    border:1px solid var(--hairline);
+    border-radius:8px;
+    background:#fff;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    text-align:left;
+    font-family:'Palatino Linotype', Palatino, Georgia, serif;
+    font-size:15px;
+  }
+  th{
+    background:var(--code-bg);
+    color:var(--ink);
+    padding:12px 16px;
+    font-family:Georgia, serif;
+    font-weight:700;
+    border-bottom:1px solid var(--hairline);
+  }
+  td{
+    padding:12px 16px;
+    border-bottom:1px solid var(--hairline);
+    vertical-align:top;
+    line-height:1.6;
+  }
+  tr:last-child td{border-bottom:none;}
+  td strong, td b{color:var(--ink);}
+
+  /* Custom Physical Record Layout Box */
+  .internal-record-container{
+    background:#fff;
+    border:1px solid var(--hairline);
+    border-left:4px solid var(--internal);
+    border-radius:0 10px 10px 0;
+    padding:24px;
+    margin:28px 0 16px;
+  }
+  .internal-record-header{
+    font-family:Georgia, serif;
+    font-weight:700;
+    font-size:16px;
+    color:var(--internal);
+    margin-bottom:14px;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .internal-record-badge{
+    font-family:'SFMono-Regular', Consolas, monospace;
+    font-size:12px;
+    background:var(--internal-tint);
+    color:var(--internal);
+    padding:3px 8px;
+    border-radius:4px;
+    font-weight:600;
+  }
+  .internal-record-grid{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .internal-field-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:var(--paper);
+    border:1px solid var(--hairline);
+    padding:10px 14px;
+    border-radius:6px;
+    font-family:'SFMono-Regular', Consolas, monospace;
+    font-size:13.5px;
+    color:var(--code-ink);
+  }
+  .internal-field-row span:last-child{
+    color:var(--ink-muted);
+    font-size:12.5px;
+  }
+
+  /* Code Block */
+  pre{
+    background:#fff;
+    border:1px solid var(--hairline);
+    border-left:4px solid var(--conceptual);
+    border-radius:0 8px 8px 0;
+    padding:20px;
+    margin:24px 0 32px;
+    overflow-x:auto;
+  }
+  pre code{
+    background:transparent;
+    color:var(--code-ink);
+    padding:0;
+    border-radius:0;
+    font-size:14px;
+    line-height:1.6;
+    display:block;
+    white-space:pre;
+  }
+
+  /* Outcome Grid */
+  .outcome-grid{display:flex; gap:16px; margin:0 0 24px; flex-wrap:wrap;}
+  .outcome-card{flex:1 1 calc(50% - 16px); background:#fff; border:1px solid var(--hairline); border-radius:8px; padding:18px 20px;}
+  .outcome-card::before{display:none;}
+  .outcome-card.external{border-top:3px solid var(--external);}
+  .outcome-card.conceptual{border-top:3px solid var(--conceptual);}
+  .outcome-card.internal{border-top:3px solid var(--internal);}
+  .outcome-card.learning{border-top:3px solid var(--ink);}
+
+  a{color:var(--conceptual);}
+  *:focus-visible{outline:2px solid var(--conceptual); outline-offset:2px;}
+
+  @media (max-width:680px){
+    .db-article{padding:40px 18px 72px;}
+    h2{font-size:25px; margin-top:48px;}
+    h3{font-size:19px;}
+    p, li{font-size:16px;}
+    .level-grid{flex-direction:column;}
+    .outcome-grid{flex-direction:column;}
+    .outcome-card{flex:1 1 100%;}
+    .toc ol{columns:1;}
+    .layer.conceptual{width:92%; margin-left:4%;}
+    .layer.internal{width:84%; margin-left:8%;}
+    .internal-field-row{flex-direction:column; align-items:flex-start; gap:4px;}
+  }
+</style>
+</head>
+<body>
+<article class="db-article">
+
+  <!-- Authors & Scenario Block Added Here -->
+  <div style="margin-bottom: 48px;">
+    <p style="font-family: Georgia, serif; font-size: 16px; color: var(--ink-muted); margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--hairline);">
+      <b>Authors:</b> Anjali Pandey(Roll No. 56), Atharva Newalkar(Roll No. 49), Himanshi Panchal(Roll No. 55)
+    </p>
+    <div style="background: #fff; border: 1px solid var(--hairline); border-left: 4px solid var(--conceptual); padding: 24px; border-radius: 8px;">
+      <h4 style="margin-top: 0; color: var(--conceptual); font-size: 18px; margin-bottom: 16px;">Activity Scenario</h4>
+      <p style="font-size: 16px; margin-bottom: 16px; line-height: 1.6;"><b>Scenario:</b> A university plans to improve database performance by changing its physical storage structure and file organization. The university wants existing student applications to continue functioning without modification. Later, the university plans to reorganize the conceptual structure of the database to introduce additional academic information.</p>
+      <p style="font-size: 16px; margin-bottom: 0; line-height: 1.6;"><b>Question:</b> Analyze the two proposed changes and determine which level of the Three-Schema Architecture is affected in each case. Identify the type of data independence involved and justify whether application programs need modification.</p>
+    </div>
+  </div>
+
+  <!-- Overview Block -->
+  <div style="margin-bottom: 48px;">
+    <div style="background: #fff; border: 1px solid var(--hairline); border-left: 4px solid var(--conceptual); padding: 24px; border-radius: 8px;">
+      <h4 style="margin-top: 0; color: var(--conceptual); font-size: 18px; margin-bottom: 16px;">Architecture Guide</h4>
+      <p style="font-size: 16px; margin-bottom: 0; line-height: 1.6;">A complete guide to designing an ANSI/SPARC Three-Schema Architecture for a comprehensive university database system—encompassing role-tailored user views, integrated logical schema design, physical storage record layouts, and the preservation of strict data independence.</p>
+    </div>
+  </div>
+
+  <!-- Hero: Layer Stack -->
+  <div class="layer-hero">
+    <p class="layer-hero-title">three-schema architecture</p>
+    <div class="layer external"><span class="layer-dot"></span>External Level (User-Specific Views &amp; Subschemas)</div>
+    <div class="layer conceptual"><span class="layer-dot"></span>Conceptual Level (Unified Enterprise Logical Blueprint)</div>
+    <div class="layer internal"><span class="layer-dot"></span>Internal Level (Physical Storage, Offsets &amp; Indexing)</div>
+  </div>
+
+  <!-- Table of Contents -->
+  <nav class="toc" aria-label="Contents">
+    <p class="toc-label">Contents</p>
+    <ol>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#what-is-three-schema">What Is Three-Schema Architecture?</a></li>
+      <li><a href="#requirements-analysis">User Requirements Analysis</a></li>
+      <li><a href="#external-schema">External Schema: User Views</a></li>
+      <li><a href="#conceptual-schema">Conceptual Schema: Logical Model</a></li>
+      <li><a href="#implementation">Implementation Methodology</a></li>
+      <li><a href="#internal-schema">Internal Schema &amp; Record Layout</a></li>
+      <li><a href="#data-independence">Data Independence</a></li>
+      <li><a href="#view-definitions">Illustrative View Definitions</a></li>
+      <li><a href="#security-governance">Security &amp; Governance</a></li>
+      <li><a href="#future-scope">Future Scope</a></li>
+      <li><a href="#conclusion">Conclusion &amp; Learning Outcomes</a></li>
+    </ol>
+  </nav>
+
+  <h2 id="introduction">Introduction</h2>
+  <p>A centralized university database can hold student, faculty, examination, attendance, course, department, and fee information. The challenge is that these users do not need the same information and must not have the same access. Students need their own marks and attendance. Faculty need academic details for students in courses they teach or advise. Management needs department-level reports and trends. Database administrators need storage and recovery information, but not unrestricted business access for daily work.</p>
+  <p>The <b>Three-Schema Architecture</b> provides a structured way to satisfy these requirements. It separates the database into user-specific views, one integrated logical model, and a physical storage design. This prevents privacy violations, supports maintainable applications, and lets administrators improve performance without changing portal or reporting programs.</p>
+
+  <div class="divider"><span></span></div>
+
+  <h2 id="what-is-three-schema">What Is Three-Schema Architecture?</h2>
+  <p>The Three-Schema Architecture, often associated with the ANSI/SPARC database model, describes a single database at three distinct structural levels. The external level defines what each user or application sees. The conceptual level defines the complete logical structure of the enterprise data. The internal level defines how the DBMS stores and retrieves that data physically.</p>
+
+  <div class="comparison-table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Schema Level</th>
+          <th>Core Purpose</th>
+          <th>University Application Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>External Schema</strong></td>
+          <td>Provides a user-specific view of the system database.</td>
+          <td>Readers and students view published course rosters, marks, fee statements, and departmental reports.</td>
+        </tr>
+        <tr>
+          <td><strong>Conceptual Schema</strong></td>
+          <td>Defines all entities, relationships, primary/foreign keys, and enterprise constraints.</td>
+          <td>Core entities such as Student, Faculty, Course, Department, Enrollment, and Exam Results.</td>
+        </tr>
+        <tr>
+          <td><strong>Internal Schema</strong></td>
+          <td>Defines physical byte storage layouts, field offsets, index trees, and hardware access paths.</td>
+          <td>Binary record layouts, B-Tree indices, disk block alignments, and file partitioning.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><em>These are not three separate databases. They are three descriptions of the same database system. Mappings between the levels make it possible to change one level with minimal or no effect on the next higher level.</em></p>
+
+  <div class="divider"><span></span></div>
+
+  <h2 id="requirements-analysis">User Requirements Analysis</h2>
+  <p>A core design principle is <b>least privilege</b>: each user role receives only the data access and operations necessary to execute their assigned academic or administrative duties.</p>
+
+  <div class="comparison-table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Usergroup</th>
+          <th>Information Required</th>
+          <th>Access Restriction &amp; Governance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Students</strong></td>
+          <td>Personal details, course enrolments, attendance, marks, grades, and results</td>
+          <td>Can access only their own verified academic and billing records</td>
+        </tr>
+        <tr>
+          <td><strong>Faculty</strong></td>
+          <td>Assigned courses, student lists, attendance, marks, and academic records</td>
+          <td>Can access records exclusively for students and courses assigned to them</td>
+        </tr>
+        <tr>
+          <td><strong>Management</strong></td>
+          <td>Department-wise enrolment, attendance summaries, results, and academic reports</td>
+          <td>Aggregate, analytical view of campus-wide and department-level trends</td>
+        </tr>
+        <tr>
+          <td><strong>Database Administrators</strong></td>
+          <td>Database structure, storage, backups, performance, security, and system logs</td>
+          <td>Full technical access; direct data alterations must be restricted and logged</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="divider"><span></span></div>
+
+  <h2 id="external-schema">External Schema: User-Specific Views</h2>
+  <p>The external schema contains customized interfaces to the shared database. A database view is an abstraction layer tailored to a specific user role; it does not duplicate stored rows. It filters unnecessary attributes, restricts unauthorized records, and provides a stable operational contract for portals and client applications.</p>
+
+  <div class="level-grid">
+    <div class="level-card external">
+      <b>Student External Schema</b>
+      <p style="margin-bottom:8px;"><code>Student_Academic_View</code> exposes Student_ID, course code, title, semester, attendance percentage, marks, grade, and result status.</p>
+      <p>Row-level security isolates the authenticated student, completely hiding peer records and administrative fields.</p>
+    </div>
+    <div class="level-card conceptual">
+      <b>Faculty External Schema</b>
+      <p style="margin-bottom:8px;"><code>Faculty_Course_View</code> provides course rosters, attendance registers, internal assessment components, and grades.</p>
+      <p>Row-level rules restrict visibility strictly to courses allocated to the logged-in instructor.</p>
+    </div>
+  </div>
+
+  <div class="analysis-card external">
+    <h3>Management External Schema</h3>
+    <p><code>Department_Performance_Report</code> provides aggregated analytical metrics across departments, academic programs, and semesters—including enrolled headcounts, average attendance percent, pass ratios, and fee collection summaries. Direct access to personally identifiable information is strictly restricted.</p>
+  </div>
+
+  <div class="divider"><span></span></div>
+
+  <h2 id="conceptual-schema">Conceptual Schema: The Integrated Logical Model</h2>
+  <p>The conceptual schema is the university-wide logical blueprint. It is entirely independent of frontend screen layouts and hardware file storage. It enforces the semantic meaning of data and the integrity constraints that ensure institutional accuracy.</p>
+
+  <div class="analysis-card conceptual">
+    <h3>Core Entities &amp; Logical Relationships</h3>
+    <ul>
+      <li><strong>STUDENT:</strong> Stores student identities (<code>Student_ID</code>, <code>Name</code>, <code>Programme</code>, <code>Department_ID</code>).</li>
+      <li><strong>FACULTY:</strong> Manages instructor profiles, department associations, and advising workloads.</li>
+      <li><strong>DEPARTMENT:</strong> Defines academic divisions, program offerings, and department heads.</li>
+      <li><strong>COURSE:</strong> Stores credit ratings, curriculum titles, and offering departments.</li>
+      <li><strong>ENROLLMENT:</strong> Resolves the M:N relationship between learners and courses, capturing semester attendance records.</li>
+      <li><strong>EXAM &amp; EXAM_RESULT:</strong> Enforces foreign keys ensuring marks link exclusively to active course enrollments.</li>
+      <li><strong>INVOICE &amp; FEE_PAYMENT:</strong> Isolates financial commitments and dues from academic views.</li>
+    </ul>
+  </div>
+
+  <div class="divider"><span></span></div>
+
+  <h2 id="implementation">How the Architecture Is Implemented</h2>
+  <p>Implementation begins with requirements gathering and proceeds systematically down the schema layers while defining explicit inter-level mappings.</p>
+
+  <div class="analysis-card external">
+    <h3>Step 1: Define External Views and Roles</h3>
+    <ul>
+      <li>Authenticate users via the university identity provider (SSO) and assign RBAC roles (Student, Faculty, Management, DBA).</li>
+      <li>Implement row-level security (RLS) policies so data filters dynamically based on session identity.</li>
+      <li>Enforce column-level masking on sensitive attributes such as fee dues, residential contacts, and disciplinary flags.</li>
+    </ul>
+  </div>
+
+  <div class="analysis-card conceptual">
+    <h3>Step 2: Implement the Conceptual Model</h3>
+    <ul>
+      <li>Construct fully normalized relational base tables (3NF/BCNF) with explicit primary and foreign key constraints.</li>
+      <li>Centrally define academic business rules: grading scales, prerequisite rules, and semester progression criteria.</li>
+      <li>Publish a centralized data dictionary defining field ownership, valid enumerations, and calculation models.</li>
+    </ul>
+  </div>
+
+  <div class="analysis-card internal">
+    <h3>Step 3: Implement Internal Storage</h3>
+    <ul>
+      <li>Build indexes on high-frequency join attributes (<code>Student_ID</code>, <code>Course_ID</code>, <code>Semester</code>).</li>
+      <li>Partition high-volume transaction tables (<code>ENROLLMENT</code>, <code>EXAM_RESULT</code>) by academic year or semester.</li>
+      <li>Implement transparent data encryption (TDE) at rest, configure WAL logging, and automate snapshot backups.</li>
+    </ul>
+  </div>
+
+  <div class="analysis-card">
+    <h3 style="color:var(--ink);">Step 4: Preserve Inter-Schema Mappings</h3>
+    <ul>
+      <li><strong>External–Conceptual Mappings:</strong> Map user views directly to underlying relational entities, absorbing schema renames and additions.</li>
+      <li><strong>Conceptual–Internal Mappings:</strong> Connect logical relations to physical pages, blocks, and B-Tree indexes on hardware disks.</li>
+    </ul>
+  </div>
+
+  <div class="divider"><span></span></div>
+
+  <h2 id="internal-schema">Internal Schema and Record Layout</h2>
+  <p>The internal schema governs physical representation and access mechanics: fixed or variable length records, byte offsets, indexing trees, block alignments, and compression profiles. These low-level details remain strictly isolated from client applications.</p>
+
+  <div class="internal-record-container">
+    <div class="internal-record-header">
+      <span>Physical Record Structure: STORED_STUDENT</span>
+      <span class="internal-record-badge">Allocated Length: 105 Bytes</span>
+    </div>
+    <div class="internal-record-grid">
+      <div class="internal-field-row">
+        <span><b>RollNo</b> (Unique Numeric)</span>
+        <span>6 decimal | Offset 0</span>
+      </div>
+      <div class="internal-field-row">
+        <span><b>Name</b> (Character String)</span>
+        <span>30 bytes | Offset 6</span>
+      </div>
+      <div class="internal-field-row">
+        <span><b>Department</b> (String)</span>
+        <span>20 bytes | Offset 36</span>
+      </div>
+      <div class="internal-field-row">
+        <span><b>Semester</b> (Numeric)</span>
+        <span>1 decimal | Offset 56</span>
+      </div>
+      <div class="internal-field-row">
+        <span><b>DOB</b> (Date Object)</span>
+        <span>8 bytes | Offset 57</span>
+      </div>
+      <div class="internal-field-row">
+        <span><b>Email</b> (String)</span>
+        <span>40 bytes | Offset 65</span>
+      </div>
+    </div>
+  </div>
+  <figcaption style="margin-bottom:32px;">Figure 1: Internal view and byte layout of a stored student record</figcaption>
+
+  <p>Offsets tell the storage engine exactly where each field begins on disk, enabling fast direct-access parsing without reading preceding data sequentially. In production engines, physical footprints also account for row headers, null bitmaps, and block alignment paddings.</p>
+
+  <div class="divider"><span></span></div>
+
+  <h2 id="data-independence">Data Independence</h2>
+  <p>The primary advantage of the Three-Schema Architecture is insulating higher abstraction tiers from lower-tier optimizations:</p>
+
+  <div class="level-grid">
+    <div class="level-card internal">
+      <b>Physical Data Independence</b>
+      The ability to alter the internal schema (e.g., adding B+ tree indexes, re-clustering disk sectors, or migrating to NVMe SSDs) without modifying the conceptual schema or existing portal code.
+    </div>
+    <div class="level-card conceptual">
+      <b>Logical Data Independence</b>
+      The ability to expand or reorganize the conceptual schema (e.g., decomposing tables during normalization or tracking new continuous assessments) without rewriting external schemas or client programs.
+    </div>
+  </div>
+
+  <div class="divider"><span></span></div>
+
+  <h2 id="view-definitions">Illustrative View Definitions</h2>
+  <p>The following SQL definitions demonstrate how external abstraction views map onto normalized conceptual base entities:</p>
+
+  <pre><code>CREATE VIEW Student_Academic_View AS
+SELECT e.Student_ID, c.Course_ID, c.Title, e.Semester,
+       e.Attendance_Percent, r.Marks, r.Grade
+FROM ENROLLMENT e
+JOIN COURSE c ON c.Course_ID = e.Course_ID
+LEFT JOIN EXAM_RESULT r ON r.Student_ID = e.Student_ID
+  AND r.Course_ID = e.Course_ID;
+
+CREATE VIEW Department_Performance_Report AS
+SELECT d.Department_ID, d.Department_Name, e.Semester,
+       COUNT(DISTINCT e.Student_ID) AS Enrolled_Students,
+       AVG(e.Attendance_Percent) AS Avg_Attendance
+FROM DEPARTMENT d
+JOIN COURSE c ON c.Department_ID = d.Department_ID
+JOIN ENROLLMENT e ON e.Course_ID = c.Course_ID
+GROUP BY d.Department_ID, d.Department_Name, e.Semester;</code></pre>
+
+  <div class="divider"><span></span></div>
+
+  <h2 id="security-governance">Security, Governance, and Operations</h2>
+  <ul>
+    <li><b>Role-Based Access Control (RBAC):</b> Enforce least privilege with automated row-level filters isolating individual student cohorts.</li>
+    <li><b>Immutable Audit Logging:</b> Track every modification to exam scores, grade approvals, and tuition adjustments in tamper-evident logs.</li>
+    <li><b>Separation of Administrative Duties:</b> Faculty record marks, the Controller of Examinations validates and publishes results, and the Accounts Office manages financial receipts.</li>
+    <li><b>Disaster Resilience:</b> Establish write-ahead transaction logging (WAL), automated off-site backups, and high-availability failover nodes.</li>
+  </ul>
+
+  <div class="divider"><span></span></div>
+
+  <h2 id="future-scope">Future Scope</h2>
+  <ul>
+    <li><b>Institutional Data Lakehouse:</b> Decouple analytical reporting and longitudinal trend forecasting from the operational OLTP database.</li>
+    <li><b>Metadata &amp; Lineage Catalogs:</b> Integrate enterprise data catalogs to track how reporting metrics derive from base conceptual tables.</li>
+    <li><b>API Abstraction Gateway:</b> Route web, iOS, and Android applications through governed REST/GraphQL APIs rather than querying views directly.</li>
+    <li><b>Predictive Anomaly Detection:</b> Deploy machine learning models on transaction logs to flag unauthorized grade alterations or attendance manipulation.</li>
+  </ul>
+
+  <div class="divider"><span></span></div>
+
+  <h2 id="conclusion">Conclusion &amp; Learning Outcomes</h2>
+  <p>The ANSI/SPARC Three-Schema Architecture provides an educational institution with an authoritative single source of truth without granting uniform data exposure across user groups.</p>
+
+  <div class="outcome-grid">
+    <div class="outcome-card external">
+      <b>External Level</b>
+      <p style="margin:8px 0 0; font-size:15px; line-height:1.6;">Delivers role-tailored, privacy-preserving interfaces that keep student and faculty workflows focused and secure.</p>
+    </div>
+    <div class="outcome-card conceptual">
+      <b>Conceptual Level</b>
+      <p style="margin:8px 0 0; font-size:15px; line-height:1.6;">Maintains an integrated, consistent logical blueprint linking academic, administrative, and financial domains.</p>
+    </div>
+    <div class="outcome-card internal">
+      <b>Internal Level</b>
+      <p style="margin:8px 0 0; font-size:15px; line-height:1.6;">Enables high-performance storage layouts, index optimization, and disaster recovery without application impact.</p>
+    </div>
+    <div class="outcome-card learning">
+      <b>Learning Outcome</b>
+      <p style="margin:8px 0 0; font-size:15px; line-height:1.6;">Demonstrates practical mastery of stakeholder view isolation, logical entity modeling, and physical data independence.</p>
+    </div>
+  </div>
 
 </article>
 </body>
